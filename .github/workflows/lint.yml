@@ -20,9 +20,3 @@ jobs:
         uses: tighten/duster-action@v3
         with:
           args: lint
-
-      - name: Format Frontend
-        run: npm run format:check
-
-      - name: Lint Frontend
-        run: npm run lint:check:errors

@@ -32,6 +32,7 @@
         "./composer.json",
         "./package.json",
         "*.lock",
+        // TODO remove once app.blade.php is added with React
         "./resources/views/welcome.blade.php"
     ],
     // flagWords - list of words to be always considered incorrect

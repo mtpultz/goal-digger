@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+function echoBright() {
+    echo -e "\033[1;33m$1\033[0m"
+}
+echoBright "🟡 Running pre-push checks..."
+
+echoBright "🟡 Running backend tests..."
+if ! vendor/bin/pest; then
+    echoBright "⚠️ Backend tests have failed, fix the failing test(s) before committing"
+    exit 1
+fi
+echoBright "✅ Backend tests passed"
+
+# TODO add in formatting scripts when React added
+# echoBright "🟡 Running frontend tests..."
+# if ! npm run test; then
+#     echoBright "⚠️ Frontend tests have failed, fix the failing test(s) before committing"
+#     exit 1
+# fi
+# echoBright "✅ Frontend tests passed"
+
+echoBright "✅ All pre-push checks passed!"

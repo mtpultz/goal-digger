@@ -1,9 +1,8 @@
 export default {
-    "**/*.php*": ["vendor/bin/duster lint"],
+    "**/*": ["npm run spell:check:errors"],
+    "**/*.php*": ["vendor/bin/duster lint", "vendor/bin/pest"],
     "**/*.{ts,tsx,js,jsx}": [
-        "npm run spell:check:errors",
-        // TODO uncomment when React has been installed
-        // "npm run format:check",
-        // "npm run lint:check:errors",
+        // TODO add in linting scripts when React added
+        // TODO add in formatting scripts when React added
     ],
 };

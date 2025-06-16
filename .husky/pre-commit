@@ -1,2 +1,14 @@
 #!/usr/bin/env sh
-npx --no-install lint-staged
+function echoBright() {
+    echo -e "\033[1;33m$1\033[0m"
+}
+echoBright "🟡 Running pre-commit checks..."
+
+echoBright "🟡 Running lint-staged..."
+if ! npx --no-install lint-staged; then
+  echoBright "⚠️ Lint-staged checks failed, fix the issue(s) before committing"
+  exit 1
+fi
+echoBright "✅ Lint-staged check has passed"
+
+echoBright "✅ All pre-commit checks passed!"

@@ -10,8 +10,8 @@
         "lint:check": "eslint .",
         "lint:check:errors": "eslint . --quiet",
         "lint:fix": "eslint . --fix",
-        "spell:check": "cspell \"./**/*.*\" --words-only --unique",
-        "spell:check:errors": "cspell \"./**/*.*\" --words-only --unique --quiet",
+        "spell:check": "cspell \"./**/*.*\" --words-only --unique --gitignore",
+        "spell:check:errors": "cspell \"./**/*.*\" --words-only --unique --gitignore --quiet",
         "prepare": "husky"
     },
     "devDependencies": {
