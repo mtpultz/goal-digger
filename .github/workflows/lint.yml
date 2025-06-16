@@ -5,15 +5,24 @@ on:
     types: [opened, ready_for_review, synchronize]
 
 jobs:
-  duster:
+  lint:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-      - name: "Duster Lint"
+
+      - name: Spell Check
+        run: npm run spell:check:errors
+
+      - name: "Format and Lint Backend"
         uses: tighten/duster-action@v3
         with:
           args: lint
+
+      - name: Format Frontend
+        run: npm run format:check
+
+      - name: Lint Frontend
+        run: npm run lint:check:errors
