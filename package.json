@@ -5,14 +5,21 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
+        "format:check": "prettier --check resources/",
+        "format:write": "prettier --write resources/",
+        "lint:check": "eslint .",
+        "lint:check:errors": "eslint . --quiet",
+        "lint:fix": "eslint . --fix",
         "spell:check": "cspell \"./**/*.*\" --words-only --unique",
-        "spell:check:errors": "cspell \"./**/*.*\" --words-only --unique --quiet"
+        "spell:check:errors": "cspell \"./**/*.*\" --words-only --unique --quiet",
+        "prepare": "husky"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.8.2",
         "concurrently": "^9.0.1",
         "cspell": "^9.0.2",
+        "husky": "^9.1.7",
         "laravel-vite-plugin": "^1.2.0",
         "tailwindcss": "^4.0.0",
         "vite": "^6.2.4"
