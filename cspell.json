@@ -13,6 +13,7 @@
         "phpredis",
         "phpunit",
         "psql",
+        "Pultz",
         "roundrobin",
         "sasl",
         "sslmode"
