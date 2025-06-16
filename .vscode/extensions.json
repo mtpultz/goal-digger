@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        "gruntfuggly.todo-tree",
+        "redhat.vscode-yaml",
+        "esbenp.prettier-vscode",
+        "pflannery.vscode-versionlens",
+        "usernamehw.errorlens",
+        "bierner.emojisense",
+        "streetsidesoftware.code-spell-checker",
+        "laravel.vscode-laravel",
+        "2guys1account.quackrack-cursor",
+        "bmewburn.vscode-intelephense-client",
+        "marlom.keep-context"
+    ]
+}
