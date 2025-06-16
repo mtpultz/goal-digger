@@ -11,7 +11,7 @@ if ! vendor/bin/pest; then
 fi
 echoBright "✅ Backend tests passed"
 
-# TODO add in formatting scripts when React added
+# TODO add in tests when React added
 # echoBright "🟡 Running frontend tests..."
 # if ! npm run test; then
 #     echoBright "⚠️ Frontend tests have failed, fix the failing test(s) before committing"

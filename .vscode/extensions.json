@@ -10,6 +10,7 @@
         "laravel.vscode-laravel",
         "2guys1account.quackrack-cursor",
         "bmewburn.vscode-intelephense-client",
-        "marlom.keep-context"
+        "marlom.keep-context",
+        "pkief.material-icon-theme"
     ]
 }

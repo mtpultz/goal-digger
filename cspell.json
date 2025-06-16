@@ -16,6 +16,7 @@
         "Pultz",
         "roundrobin",
         "sasl",
+        "shivammathur",
         "sslmode"
     ],
     "ignorePaths": [

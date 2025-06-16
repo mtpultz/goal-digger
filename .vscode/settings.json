@@ -11,5 +11,8 @@
     "editor.guides.bracketPairs": "active",
     "editor.bracketPairColorization.enabled": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "todo-tree.tree.scanMode": "workspace only"
+    "todo-tree.tree.scanMode": "workspace only",
+    "material-icon-theme.languages.associations": {
+        "php": "php_elephant"
+    }
 }

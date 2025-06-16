@@ -1,14 +1,15 @@
-name: Duster Lint
+name: linter
 
 on:
   pull_request:
     types: [opened, ready_for_review, synchronize]
 
 jobs:
-  lint:
+  quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
