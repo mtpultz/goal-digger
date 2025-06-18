@@ -83,6 +83,22 @@ class Goal extends Model
     }
 
     /**
+     * Get the comments for the goal.
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Get the root comments for the goal.
+     */
+    public function rootComments(): HasMany
+    {
+        return $this->comments()->whereNull('parent_id');
+    }
+
+    /**
      * Scope a query to only include root goals.
      */
     public function scopeRoot($query)
