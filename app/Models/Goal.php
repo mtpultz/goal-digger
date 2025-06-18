@@ -99,6 +99,38 @@ class Goal extends Model
     }
 
     /**
+     * Get all buddy goals for this goal.
+     */
+    public function buddyGoals(): HasMany
+    {
+        return $this->hasMany(BuddyGoal::class);
+    }
+
+    /**
+     * Get all accepted buddy goals for this goal.
+     */
+    public function acceptedBuddyGoals(): HasMany
+    {
+        return $this->buddyGoals()->where('status', 'ACCEPTED');
+    }
+
+    /**
+     * Get all pending buddy goals for this goal.
+     */
+    public function pendingBuddyGoals(): HasMany
+    {
+        return $this->buddyGoals()->where('status', 'PENDING');
+    }
+
+    /**
+     * Get all buddies with access to this goal.
+     */
+    public function buddies()
+    {
+        return $this->acceptedBuddyGoals()->with('buddy');
+    }
+
+    /**
      * Scope a query to only include root goals.
      */
     public function scopeRoot($query)
