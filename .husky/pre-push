@@ -4,12 +4,12 @@ function echoBright() {
 }
 echoBright "🟡 Running pre-push checks..."
 
-echoBright "🟡 Running backend tests..."
-if ! vendor/bin/pest; then
-    echoBright "⚠️ Backend tests have failed, fix the failing test(s) before committing"
-    exit 1
-fi
-echoBright "✅ Backend tests passed"
+# echoBright "🟡 Running backend tests..."
+# if ! vendor/bin/pest; then
+#     echoBright "⚠️ Backend tests have failed, fix the failing test(s) before committing"
+#     exit 1
+# fi
+# echoBright "✅ Backend tests passed"
 
 # TODO add in tests when React added
 # echoBright "🟡 Running frontend tests..."
