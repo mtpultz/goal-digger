@@ -10,6 +10,7 @@
         "EHLO",
         "Laravel",
         "papertrail",
+        "phpactor",
         "phpredis",
         "phpunit",
         "psql",
