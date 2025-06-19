@@ -2,7 +2,13 @@
 
 A goal tracker for those chasing goals like they’re rich, shiny, and mildly afraid of commitment.
 
-## Setup
+## Table of Contents
+
+1. [Install Dependencies](#install-dependencies)
+1. [Setup Application](#setup-application)
+1. [Using Access Tokens](#using-access-tokens)
+
+## Install Dependencies
 
 ### Install VSCode
 
@@ -29,7 +35,7 @@ A goal tracker for those chasing goals like they’re rich, shiny, and mildly af
 -   Connect to **Postgres**, which will either use the default username `postgres`, or the your `macOS` username
 -   Create a new database named `goal_digger`
 
-### Clone and Setup Application
+## Setup Application
 
 -   Clone the [repository](https://github.com/mtpultz/goal-digger) into the `~/Herd` that was created during the installation of **Laravel Herd**
 -   Run `composer install`
@@ -40,7 +46,7 @@ A goal tracker for those chasing goals like they’re rich, shiny, and mildly af
 -   Run `composer run dev` to start the application, and
 -   Visit `http://goal-digger.test`
 
-### Using Access Tokens
+## Using Access Tokens
 
 -   Install HTTP client of choice
     -   [Postman](https://www.postman.com/downloads)
@@ -49,7 +55,7 @@ A goal tracker for those chasing goals like they’re rich, shiny, and mildly af
 -   Set the default client name of **Goal Digger**
 -   Copy the `CLIENT_ID` and `CLIENT_SECRET` into the HTTP client local environment variables
 
-#### Postman
+### Postman Setup
 
 -   Create a local environment with:
 
