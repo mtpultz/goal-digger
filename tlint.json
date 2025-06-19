@@ -1,4 +1,0 @@
-{
-    "preset": "Laravel",
-    "disabled": ["NoDocBlocksForMigrationUpDown"]
-}
