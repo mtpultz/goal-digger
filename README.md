@@ -41,6 +41,7 @@ A goal tracker for those chasing goals like they’re rich, shiny, and mildly af
 -   Run `composer install`
 -   Run `npm install`
 -   Copy `.env.example` to `.env` and update the `DB_PASSWORD` with your root password
+-   Run `php artisan key:generate`
 -   Run `php artisan migrate:fresh` to run all the migrations
 -   Run `php artisan db:seed` to add seed data to the database
 -   Run `composer run dev` to start the application, and
