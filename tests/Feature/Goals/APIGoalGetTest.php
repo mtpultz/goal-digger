@@ -18,8 +18,9 @@ test('Goal get Active endpoint should return a list of active goals for the curr
 
     // Act
     $response = $this->getJson('/api/goals/active');
+    $response->dump();
 
     // Assert
     $response->assertStatus(200);
-    $response->assertJsonCount(3);
+    $response->assertJsonCount(3, 'data');
 });
