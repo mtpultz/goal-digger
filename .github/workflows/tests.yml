@@ -35,6 +35,9 @@ jobs:
       - name: Generate Application Key
         run: php artisan key:generate
 
+      - name: Run Migrations
+        run: php artisan migrate:fresh --seed
+
       - name: Generate Passport keys
         run: php artisan passport:install
 
