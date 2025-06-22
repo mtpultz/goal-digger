@@ -27,10 +27,20 @@ jobs:
       - name: Copy Environment File
         run: cp .env.example .env
 
+      - name: Set up environment variables for tests
+        run: |
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=:memory:" >> .env
+
       - name: Generate Application Key
         run: php artisan key:generate
 
-      - name: Tests
-        run: ./vendor/bin/pest
+      - name: Run Migrations
+        run: php artisan migrate:fresh --seed
 
+      - name: Generate Passport keys
+        run: php artisan passport:keys
+
+      - name: Tests
+        run: php artisan test
       # TODO add in tests when React added
