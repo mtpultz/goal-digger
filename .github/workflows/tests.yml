@@ -27,6 +27,11 @@ jobs:
       - name: Copy Environment File
         run: cp .env.example .env
 
+      - name: Set up environment variables for tests
+        run: |
+          echo "DB_CONNECTION=sqlite" >> .env.testing
+          echo "DB_DATABASE=:memory:" >> .env.testing
+
       - name: Generate Application Key
         run: php artisan key:generate
 
