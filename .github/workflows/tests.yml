@@ -38,8 +38,8 @@ jobs:
       - name: Run Migrations
         run: php artisan migrate:fresh --seed
 
-      - name: Generate Passport keys
-        run: php artisan passport:install
+      #      - name: Generate Passport keys
+      #     run: php artisan passport:install
 
       - name: Tests
         run: php artisan test
