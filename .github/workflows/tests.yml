@@ -30,6 +30,9 @@ jobs:
       - name: Generate Application Key
         run: php artisan key:generate
 
+      - name: Generate Passport keys
+        run: php artisan passport:install
+
       - name: Tests
         run: ./vendor/bin/pest
 
