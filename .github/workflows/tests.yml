@@ -34,6 +34,5 @@ jobs:
         run: php artisan passport:install
 
       - name: Tests
-        run: ./vendor/bin/pest
-
+        run: php artisan test
       # TODO add in tests when React added
