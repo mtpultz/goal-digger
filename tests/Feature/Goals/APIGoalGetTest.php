@@ -4,8 +4,9 @@ use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
+use Tests\Traits\CreatesGoalTree;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabase::class, CreatesGoalTree::class);
 
 test('Goal get Active endpoint should return a list of active goals for the current user', function () {
     // Arrange
@@ -103,4 +104,23 @@ test('Goal get Active endpoint includes root and parent goals for nested goals',
     // Assert parent goal is correct
     $this->assertNotNull($response_data['parent'], 'Parent goal not present for child goal');
     $this->assertEquals($parentGoal->id, $response_data['parent']['id']);
+});
+
+test('Goal get Active endpoint returns the single active leaf from a generated tree', function () {
+    // Arrange
+    /** @var \App\Models\User $user */
+    $user = User::factory()->createOne();
+    Passport::actingAs($user);
+
+    // Use the trait to create a goal tree of depth 3
+    $generatedGoals = $this->createGoalTree($user, 3);
+    $activeLeaf = $generatedGoals['activeLeaf'];
+
+    // Act
+    $response = $this->getJson('/api/goals/active');
+
+    // Assert
+    $response->assertStatus(200);
+    $response->assertJsonCount(1, 'data');
+    $this->assertEquals($activeLeaf->id, $response->json('data.0.id'));
 });
