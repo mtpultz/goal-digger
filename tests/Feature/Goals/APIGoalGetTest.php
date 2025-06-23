@@ -56,7 +56,7 @@ test('Goal get Active endpoint supports pagination', function () {
     $this->assertEmpty($page1_ids->intersect($page2_ids));
 });
 
-test('Goal get Active endpoint includes the root goal for nested goals', function () {
+test('Goal get Active endpoint includes root and parent goals for nested goals', function () {
     // Arrange
     /** @var \App\Models\User $user */
     $user = User::factory()->createOne();
@@ -65,16 +65,20 @@ test('Goal get Active endpoint includes the root goal for nested goals', functio
     $rootGoal = Goal::factory()->create([
         'user_id' => $user->id,
         'parent_id' => null,
-        'status' => 'OPEN', // Root goal is not active itself
+        'status' => 'OPEN',
     ]);
+    $rootGoal->update(['root_id' => $rootGoal->id]);
 
-    // Set root_id for the root goal itself
-    $rootGoal->root_id = $rootGoal->id;
-    $rootGoal->save();
+    $parentGoal = Goal::factory()->create([
+        'user_id' => $user->id,
+        'parent_id' => $rootGoal->id,
+        'root_id' => $rootGoal->id,
+        'status' => 'OPEN',
+    ]);
 
     $childGoal = Goal::factory()->create([
         'user_id' => $user->id,
-        'parent_id' => $rootGoal->id,
+        'parent_id' => $parentGoal->id,
         'root_id' => $rootGoal->id,
         'status' => 'ACTIVE', // This is the goal we expect to fetch
     ]);
@@ -86,12 +90,25 @@ test('Goal get Active endpoint includes the root goal for nested goals', functio
     $response->assertStatus(200);
     $response->assertJsonCount(1, 'data');
 
-    // Find the child goal in the response
-    $response_child_goal = collect($response->json('data'))->firstWhere('id', $childGoal->id);
+    $response_data = $response->json('data.0');
 
-    $this->assertNotNull($response_child_goal, 'Child goal not found in response');
-    $this->assertNotNull($response_child_goal['root'], 'Root goal not present for child goal');
-    $this->assertEquals($rootGoal->id, $response_child_goal['root']['id']);
-    $this->assertEquals($rootGoal->title, $response_child_goal['root']['title']);
-    $this->assertArrayNotHasKey('root', $response_child_goal['root']);
+    $this->assertEquals($childGoal->id, $response_data['id']);
+
+    // Assert root goal is correct
+    $this->assertNotNull($response_data['root'], 'Root goal not present for child goal');
+    $this->assertEquals($rootGoal->id, $response_data['root']['id']);
+    $this->assertArrayNotHasKey('root', $response_data['root']);
+    $this->assertArrayNotHasKey('parent', $response_data['root']);
+
+    // Assert parent goal is correct
+    $this->assertNotNull($response_data['parent'], 'Parent goal not present for child goal');
+    $this->assertEquals($parentGoal->id, $response_data['parent']['id']);
+
+    // Assert parent's root is correct
+    $this->assertNotNull($response_data['parent']['root'], 'Root goal not present for parent goal');
+    $this->assertEquals($rootGoal->id, $response_data['parent']['root']['id']);
+
+    // Assert parent's parent is correct
+    $this->assertNotNull($response_data['parent']['parent'], 'Parent goal not present for parent goal');
+    $this->assertEquals($rootGoal->id, $response_data['parent']['parent']['id']);
 });
