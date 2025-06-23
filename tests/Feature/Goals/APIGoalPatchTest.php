@@ -20,13 +20,13 @@ class APIGoalPatchTest extends TestCase
     {
         parent::setUp();
         $this->user = User::factory()->create();
-        $this->actingAs($this->user, 'api');
     }
 
     /** @test */
     public function it_changes_status_from_active_to_complete_and_activates_sibling()
     {
         // Arrange
+        $this->actingAs($this->user, 'api');
         $parent = Goal::factory()->create(['user_id' => $this->user->id]);
         $goal1 = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'ACTIVE']);
         $goal2 = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'OPEN']);
@@ -44,6 +44,7 @@ class APIGoalPatchTest extends TestCase
     public function it_bubbles_complete_when_no_open_or_active_siblings()
     {
         // Arrange
+        $this->actingAs($this->user, 'api');
         $parent = Goal::factory()->create(['user_id' => $this->user->id]);
         $goal1 = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'ACTIVE']);
         $goal2 = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'COMPLETE']);
@@ -61,6 +62,7 @@ class APIGoalPatchTest extends TestCase
     public function it_returns_error_if_not_active()
     {
         // Arrange
+        $this->actingAs($this->user, 'api');
         $goal = Goal::factory()->create(['user_id' => $this->user->id, 'status' => 'OPEN']);
 
         // Act
@@ -68,5 +70,35 @@ class APIGoalPatchTest extends TestCase
 
         // Assert
         $response->assertStatus(422);
+    }
+
+    /** @test */
+    public function user_cannot_patch_goal_of_another_user()
+    {
+        // Arrange
+        $this->actingAs($this->user, 'api');
+        $otherUser = User::factory()->create();
+        $goal = Goal::factory()->create(['user_id' => $otherUser->id, 'status' => 'ACTIVE']);
+
+        // Act
+        $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'COMPLETE']);
+
+        // Assert
+        $response->assertStatus(404); // Should not be found for security reasons
+        $this->assertEquals('ACTIVE', $goal->fresh()->status);
+    }
+
+    /** @test */
+    public function unauthenticated_user_cannot_patch_goal()
+    {
+        // Arrange
+        $goal = Goal::factory()->create(['status' => 'ACTIVE']);
+
+        // Act
+        $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'COMPLETE']);
+
+        // Assert
+        $response->assertStatus(401);
+        $this->assertEquals('ACTIVE', $goal->fresh()->status);
     }
 }
