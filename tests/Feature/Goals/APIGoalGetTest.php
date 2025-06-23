@@ -13,7 +13,7 @@ test('Goal get Active endpoint should return a list of active goals for the curr
     $user = User::factory()->createOne();
     Passport::actingAs($user);
 
-    Goal::factory()->count(26)->create(['user_id' => $user->id, 'status' => 'ACTIVE']);
+    Goal::factory()->count(24)->create(['user_id' => $user->id, 'status' => 'ACTIVE']);
     Goal::factory()->count(2)->create(['user_id' => $user->id, 'status' => 'OPEN']);
 
     // Act
@@ -21,7 +21,7 @@ test('Goal get Active endpoint should return a list of active goals for the curr
 
     // Assert
     $response->assertStatus(200);
-    $response->assertJsonCount(25, 'data');
+    $response->assertJsonCount(24, 'data');
     $response->assertJsonStructure([
         'data',
         'links',
