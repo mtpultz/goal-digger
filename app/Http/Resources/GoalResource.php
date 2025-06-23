@@ -19,6 +19,14 @@ class GoalResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'status' => $this->status,
+            'root' => $this->when(
+                ! $this->isRoot() && $this->relationLoaded('root'),
+                fn () => new self($this->root)
+            ),
+            'parent' => $this->when(
+                ! $this->isRoot() && $this->relationLoaded('parent'),
+                fn () => new self($this->parent)
+            ),
         ];
     }
 }
