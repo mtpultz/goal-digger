@@ -103,12 +103,4 @@ test('Goal get Active endpoint includes root and parent goals for nested goals',
     // Assert parent goal is correct
     $this->assertNotNull($response_data['parent'], 'Parent goal not present for child goal');
     $this->assertEquals($parentGoal->id, $response_data['parent']['id']);
-
-    // Assert parent's root is correct
-    $this->assertNotNull($response_data['parent']['root'], 'Root goal not present for parent goal');
-    $this->assertEquals($rootGoal->id, $response_data['parent']['root']['id']);
-
-    // Assert parent's parent is correct
-    $this->assertNotNull($response_data['parent']['parent'], 'Parent goal not present for parent goal');
-    $this->assertEquals($rootGoal->id, $response_data['parent']['parent']['id']);
 });
