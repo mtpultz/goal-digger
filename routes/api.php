@@ -9,3 +9,5 @@ Route::get('user', function (Request $request) {
 })->middleware('auth:api');
 
 Route::get('goals/active', [GoalsController::class, 'getActiveGoals'])->middleware('auth:api');
+
+Route::patch('goals/{id}', [GoalsController::class, 'update'])->middleware('auth:api');

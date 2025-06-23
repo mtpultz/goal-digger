@@ -14,5 +14,8 @@
     "todo-tree.tree.scanMode": "workspace only",
     "material-icon-theme.languages.associations": {
         "php": "php_elephant"
+    },
+    "[php]": {
+        "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
     }
 }
