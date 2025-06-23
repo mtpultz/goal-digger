@@ -23,15 +23,21 @@ class GoalsController extends Controller
         $user = Auth::user();
         $goal = Goal::where('id', $id)->where('user_id', $user->id)->firstOrFail();
         $newStatus = $request->input('status');
+        $oldStatus = $goal->status;
 
-        // Only allow state changes if currently ACTIVE
-        if ($goal->status !== 'ACTIVE') {
-            return response()->json(['error' => 'Goal must be ACTIVE to change its state.'], 422);
-        }
-
-        DB::transaction(function () use ($goal, $newStatus) {
+        DB::transaction(function () use ($goal, $newStatus, $oldStatus) {
             $goal->status = $newStatus;
             $goal->save();
+
+            // If status changed from SKIPPED or COMPLETE to OPEN or ACTIVE, and parent is COMPLETE, set parent to OPEN and bubble up
+            if (in_array($oldStatus, ['SKIPPED', 'COMPLETE']) && in_array($newStatus, ['OPEN', 'ACTIVE'])) {
+                $parent = $goal->parent;
+                while ($parent && $parent->status === 'COMPLETE') {
+                    $parent->status = 'OPEN';
+                    $parent->save();
+                    $parent = $parent->parent;
+                }
+            }
 
             if (in_array($newStatus, ['COMPLETE', 'SKIPPED'])) {
                 // Only find and activate a sibling if the goal has a parent

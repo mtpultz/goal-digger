@@ -59,17 +59,22 @@ class APIGoalPatchTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_error_if_not_active()
+    public function it_bubbles_open_up_when_status_changes_from_complete_to_open()
     {
         // Arrange
         $this->actingAs($this->user, 'api');
-        $goal = Goal::factory()->create(['user_id' => $this->user->id, 'status' => 'OPEN']);
+        $grandparent = Goal::factory()->create(['user_id' => $this->user->id, 'status' => 'COMPLETE']);
+        $parent = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $grandparent->id, 'status' => 'COMPLETE']);
+        $goal = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'COMPLETE']);
 
         // Act
-        $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'COMPLETE']);
+        $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'OPEN']);
 
         // Assert
-        $response->assertStatus(422);
+        $response->assertOk();
+        $this->assertEquals('OPEN', $goal->fresh()->status);
+        $this->assertEquals('OPEN', $parent->fresh()->status);
+        $this->assertEquals('OPEN', $grandparent->fresh()->status);
     }
 
     /** @test */
