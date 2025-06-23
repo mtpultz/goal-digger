@@ -55,3 +55,43 @@ test('Goal get Active endpoint supports pagination', function () {
     // Assert that page 2 does not contain any of page 1's items
     $this->assertEmpty($page1_ids->intersect($page2_ids));
 });
+
+test('Goal get Active endpoint includes the root goal for nested goals', function () {
+    // Arrange
+    /** @var \App\Models\User $user */
+    $user = User::factory()->createOne();
+    Passport::actingAs($user);
+
+    $rootGoal = Goal::factory()->create([
+        'user_id' => $user->id,
+        'parent_id' => null,
+        'status' => 'OPEN', // Root goal is not active itself
+    ]);
+
+    // Set root_id for the root goal itself
+    $rootGoal->root_id = $rootGoal->id;
+    $rootGoal->save();
+
+    $childGoal = Goal::factory()->create([
+        'user_id' => $user->id,
+        'parent_id' => $rootGoal->id,
+        'root_id' => $rootGoal->id,
+        'status' => 'ACTIVE', // This is the goal we expect to fetch
+    ]);
+
+    // Act
+    $response = $this->getJson('/api/goals/active');
+
+    // Assert
+    $response->assertStatus(200);
+    $response->assertJsonCount(1, 'data');
+
+    // Find the child goal in the response
+    $response_child_goal = collect($response->json('data'))->firstWhere('id', $childGoal->id);
+
+    $this->assertNotNull($response_child_goal, 'Child goal not found in response');
+    $this->assertNotNull($response_child_goal['root'], 'Root goal not present for child goal');
+    $this->assertEquals($rootGoal->id, $response_child_goal['root']['id']);
+    $this->assertEquals($rootGoal->title, $response_child_goal['root']['title']);
+    $this->assertArrayNotHasKey('root', $response_child_goal['root']);
+});

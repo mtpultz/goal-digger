@@ -10,7 +10,7 @@ class GoalsController extends Controller
     public function getActiveGoals(): GoalCollection
     {
         $user = Auth::user();
-        $activeGoals = $user->goals()->where('status', 'ACTIVE')->paginate(25);
+        $activeGoals = $user->goals()->with('root')->where('status', 'ACTIVE')->paginate(25);
 
         return new GoalCollection($activeGoals);
     }
