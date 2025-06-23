@@ -148,3 +148,33 @@ test('Goal get Active endpoint returns all active leaves from multiple trees', f
     $responseGoalIds = $response->collect('data')->pluck('id')->sort()->values();
     $this->assertEquals($expectedActiveGoalIds, $responseGoalIds);
 });
+
+test('Goal resource returns due_date, created_at, and links when present', function () {
+    // Arrange
+    /** @var \App\Models\User $user */
+    $user = User::factory()->createOne();
+    Passport::actingAs($user);
+
+    $dueDate = now()->addDays(10);
+    $links = ['Example' => 'https://example.com'];
+
+    $goal = Goal::factory()->create([
+        'user_id' => $user->id,
+        'status' => 'ACTIVE',
+        'due_date' => $dueDate,
+        'links' => $links,
+    ]);
+
+    // Act
+    $response = $this->getJson('/api/goals/active');
+
+    // Assert
+    $response->assertStatus(200);
+    $response->assertJsonCount(1, 'data');
+    $data = $response->json('data.0');
+
+    $this->assertEquals($goal->id, $data['id']);
+    $this->assertEquals($goal->due_date->toISOString(), $data['due_date']);
+    $this->assertEquals($goal->created_at->toISOString(), $data['created_at']);
+    $this->assertEquals($links, $data['links']);
+});
