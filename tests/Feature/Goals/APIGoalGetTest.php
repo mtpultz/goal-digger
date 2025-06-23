@@ -124,3 +124,27 @@ test('Goal get Active endpoint returns the single active leaf from a generated t
     $response->assertJsonCount(1, 'data');
     $this->assertEquals($activeLeaf->id, $response->json('data.0.id'));
 });
+
+test('Goal get Active endpoint returns all active leaves from multiple trees', function () {
+    // Arrange
+    /** @var \App\Models\User $user */
+    $user = User::factory()->createOne();
+    Passport::actingAs($user);
+
+    // Create three separate goal trees for the same user
+    $activeLeaf1 = $this->createGoalTree($user)['activeLeaf'];
+    $activeLeaf2 = $this->createGoalTree($user)['activeLeaf'];
+    $activeLeaf3 = $this->createGoalTree($user)['activeLeaf'];
+
+    $expectedActiveGoalIds = collect([$activeLeaf1, $activeLeaf2, $activeLeaf3])->pluck('id')->sort()->values();
+
+    // Act
+    $response = $this->getJson('/api/goals/active');
+
+    // Assert
+    $response->assertStatus(200);
+    $response->assertJsonCount(3, 'data');
+
+    $responseGoalIds = $response->collect('data')->pluck('id')->sort()->values();
+    $this->assertEquals($expectedActiveGoalIds, $responseGoalIds);
+});
