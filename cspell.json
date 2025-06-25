@@ -18,7 +18,8 @@
         "roundrobin",
         "sasl",
         "shivammathur",
-        "sslmode"
+        "sslmode",
+        "Symfony"
     ],
     "ignorePaths": [
         ".vscode",
