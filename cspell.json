@@ -24,6 +24,7 @@
     "ignorePaths": [
         ".vscode",
         ".env.*",
+        ".cursor/**/*.json",
         "node_modules",
         "vendor",
         "storage/framework/views",
