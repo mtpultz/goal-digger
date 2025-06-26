@@ -1,0 +1,339 @@
+---
+description:
+globs: tests/**/*Test.php
+alwaysApply: false
+---
+# Laravel Testing Standards
+
+## Test Structure and Organization
+
+### AAA Pattern (Arrange-Act-Assert)
+All tests must follow the Arrange-Act-Assert pattern with clear comments:
+
+```php
+test('descriptive test name', function () {
+    // Arrange
+    $faker = Factory::create();
+    $userData = [
+        'name' => $faker->name(),
+        'email' => $faker->unique()->safeEmail(),
+        'password' => $faker->password(8, 20),
+    ];
+
+    // Act
+    $response = $this->postJson('/api/endpoint', $userData);
+
+    // Assert
+    $response->assertStatus(Response::HTTP_CREATED)
+        ->assertJsonStructure(['expected', 'structure']);
+});
+```
+
+### Test Naming Convention
+- Use descriptive, behavior-focused names
+- Format: `test('should do something when condition', function () {})`
+- Examples:
+  - `test('user can register with valid data', function () {})`
+  - `test('registration fails with invalid email', function () {})`
+  - `test('should return 404 when resource not found', function () {})`
+
+## Test Data Management
+
+### Use Faker for All Test Data
+Never use hardcoded values. Always use Faker for realistic test data:
+
+```php
+// ✅ Good
+$faker = Factory::create();
+$userData = [
+    'name' => $faker->name(),
+    'email' => $faker->unique()->safeEmail(),
+    'password' => $faker->password(8, 20),
+];
+
+// ❌ Bad
+$userData = [
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'password' => 'password123',
+];
+```
+
+### Faker Best Practices
+- Use `unique()` for emails to prevent conflicts
+- Use `safeEmail()` for valid email formats
+- Use `password(min, max)` for realistic passwords
+- Use `name()` for realistic names
+- Use `text()` for content fields
+- Use `dateTime()` for timestamps
+
+## HTTP Status Codes
+
+### Use Constants, Not Magic Numbers
+Always use Laravel's HTTP status code constants:
+
+```php
+// ✅ Good
+use Symfony\Component\HttpFoundation\Response;
+
+$response->assertStatus(Response::HTTP_CREATED);
+$response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+$response->assertStatus(Response::HTTP_NOT_FOUND);
+
+// ❌ Bad
+$response->assertStatus(201);
+$response->assertStatus(422);
+$response->assertStatus(404);
+```
+
+### Common HTTP Status Constants
+- `Response::HTTP_OK` (200)
+- `Response::HTTP_CREATED` (201)
+- `Response::HTTP_NO_CONTENT` (204)
+- `Response::HTTP_BAD_REQUEST` (400)
+- `Response::HTTP_UNAUTHORIZED` (401)
+- `Response::HTTP_FORBIDDEN` (403)
+- `Response::HTTP_NOT_FOUND` (404)
+- `Response::HTTP_UNPROCESSABLE_ENTITY` (422)
+- `Response::HTTP_INTERNAL_SERVER_ERROR` (500)
+
+## Test Organization
+
+### File Structure
+```
+tests/
+├── Feature/
+│   ├── Auth/
+│   │   ├── RegistrationTest.php
+│   │   ├── LoginTest.php
+│   │   └── PasswordResetTest.php
+│   └── Api/
+│       ├── UserTest.php
+│       └── ResourceTest.php
+└── Unit/
+    └── ModelTest.php
+```
+
+### Test Class Structure
+```php
+<?php
+
+use App\Models\User;
+use Faker\Factory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Symfony\Component\HttpFoundation\Response;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    // Setup common test data or OAuth clients
+});
+
+test('test name', function () {
+    // Arrange
+    // Act
+    // Assert
+});
+```
+
+## Assertions and Validations
+
+### Response Assertions
+```php
+// Status and structure
+$response->assertStatus(Response::HTTP_CREATED)
+    ->assertJsonStructure([
+        'message',
+        'data' => [
+            'id',
+            'name',
+            'email',
+        ],
+    ]);
+
+// Content validation
+$response->assertJson([
+    'message' => 'Success message',
+    'data' => [
+        'name' => $userData['name'],
+        'email' => $userData['email'],
+    ],
+]);
+
+// Validation errors
+$response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+    ->assertJsonValidationErrors(['email', 'password']);
+```
+
+### Database Assertions
+```php
+// Check record exists
+$this->assertDatabaseHas('users', [
+    'email' => $userData['email'],
+    'name' => $userData['name'],
+]);
+
+// Check record doesn't exist
+$this->assertDatabaseMissing('users', [
+    'email' => 'deleted@example.com',
+]);
+
+// Check count
+$this->assertDatabaseCount('users', 1);
+```
+
+## Authentication and Authorization
+
+### OAuth Client Setup (for Passport)
+```php
+beforeEach(function () {
+    Client::create([
+        'id' => 'personal-access-client',
+        'owner_type' => null,
+        'owner_id' => null,
+        'name' => 'Test Personal Access Client',
+        'secret' => 'secret',
+        'provider' => null,
+        'redirect_uris' => ['http://localhost'],
+        'grant_types' => ['personal_access'],
+        'revoked' => false,
+    ]);
+});
+```
+
+### Authentication Tests
+```php
+test('authenticated user can access protected endpoint', function () {
+    // Arrange
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->accessToken;
+
+    // Act
+    $response = $this->withHeaders([
+        'Authorization' => 'Bearer ' . $token,
+    ])->getJson('/api/protected-endpoint');
+
+    // Assert
+    $response->assertStatus(Response::HTTP_OK);
+});
+```
+
+## Error Handling
+
+### Exception Testing
+```php
+test('should handle database errors gracefully', function () {
+    // Arrange
+    $faker = Factory::create();
+    $userData = [
+        'name' => $faker->name(),
+        'email' => $faker->unique()->safeEmail(),
+        'password' => $faker->password(8, 20),
+    ];
+
+    // Mock database failure
+    User::shouldReceive('create')->andThrow(new \Exception('Database error'));
+
+    // Act
+    $response = $this->postJson('/api/auth/register', $userData);
+
+    // Assert
+    $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
+        ->assertJson([
+            'message' => 'An error occurred while creating the user.',
+        ]);
+});
+```
+
+## Performance and Best Practices
+
+### Test Isolation
+- Use `RefreshDatabase` trait for feature tests
+- Use `DatabaseTransactions` for unit tests
+- Never rely on test execution order
+- Clean up after each test
+
+### Test Data Cleanup
+```php
+afterEach(function () {
+    // Clean up any test-specific data
+    User::where('email', 'like', '%@test.com')->delete();
+});
+```
+
+### Avoid Test Interference
+- Use `unique()` for emails and other unique fields
+- Use different data for each test
+- Don't share state between tests
+
+## Code Quality
+
+### Imports and Dependencies
+```php
+// Always import these for feature tests
+use Faker\Factory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Symfony\Component\HttpFoundation\Response;
+
+// Import models and classes being tested
+use App\Models\User;
+use App\Http\Controllers\AuthController;
+```
+
+### Comments and Documentation
+- Use clear, descriptive comments in the Arrange section
+- Explain complex test scenarios
+- Document any test-specific setup or mocking
+
+### Consistent Formatting
+- Use consistent indentation (4 spaces)
+- Group related assertions together
+- Use method chaining for related assertions
+- Keep test methods focused and single-purpose
+
+## Example Complete Test
+```php
+test('user can register with valid data and receive access token', function () {
+    // Arrange
+    $faker = Factory::create();
+    $userData = [
+        'name' => $faker->name(),
+        'email' => $faker->unique()->safeEmail(),
+        'password' => $faker->password(8, 20),
+        'password_confirmation' => null,
+    ];
+    $userData['password_confirmation'] = $userData['password'];
+
+    // Act
+    $response = $this->postJson('/api/auth/register', $userData);
+
+    // Assert
+    $response->assertStatus(Response::HTTP_CREATED)
+        ->assertJsonStructure([
+            'message',
+            'user' => [
+                'id',
+                'name',
+                'email',
+                'created_at',
+            ],
+            'access_token',
+            'token_type',
+        ])
+        ->assertJson([
+            'message' => 'User registered successfully.',
+            'user' => [
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+            ],
+            'token_type' => 'Bearer',
+        ]);
+
+    $this->assertDatabaseHas('users', [
+        'name' => $userData['name'],
+        'email' => $userData['email'],
+    ]);
+
+    $this->assertNotEmpty($response->json('access_token'));
+});
+```

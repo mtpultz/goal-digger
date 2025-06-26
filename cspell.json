@@ -18,11 +18,13 @@
         "roundrobin",
         "sasl",
         "shivammathur",
-        "sslmode"
+        "sslmode",
+        "Symfony"
     ],
     "ignorePaths": [
         ".vscode",
         ".env.*",
+        ".cursor/**/*.json",
         "node_modules",
         "vendor",
         "storage/framework/views",

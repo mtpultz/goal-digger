@@ -1,0 +1,24 @@
+{
+    "mcpServers": {
+        "github": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "-e",
+                "GITHUB_PERSONAL_ACCESS_TOKEN",
+                "-e",
+                "GITHUB_TOOLSETS=repos,pull_requests",
+                "-e",
+                "GITHUB_DYNAMIC_TOOLSETS=1",
+                "-e",
+                "GITHUB_READ_ONLY=0",
+                "ghcr.io/github/github-mcp-server"
+            ],
+            "env": {
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_MCP_ACCESS_TOKEN}"
+            }
+        }
+    }
+}
