@@ -128,28 +128,33 @@ describe('POST /goals/{goalId}/comments', function () {
         ]);
     });
 
-    it('prevents creating more than one reply to a comment', function () {
+    it('allows creating multiple replies to a root comment', function () {
         // Arrange
         $rootComment = Comment::factory()->create([
             'user_id' => $this->user->id,
             'goal_id' => $this->goal->id,
         ]);
-        Comment::factory()->create([
+        $firstReply = Comment::factory()->create([
             'user_id' => $this->user->id,
             'goal_id' => $this->goal->id,
             'parent_id' => $rootComment->id,
         ]);
-        $payload = [
-            'content' => 'Second reply',
+        $secondReplyPayload = [
+            'content' => 'Second reply to root comment',
             'parent_id' => $rootComment->id,
         ];
 
         // Act
-        $response = $this->postJson("/api/goals/{$this->goal->id}/comments", $payload);
+        $response = $this->postJson("/api/goals/{$this->goal->id}/comments", $secondReplyPayload);
 
         // Assert
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['parent_id']);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('comments', [
+            'user_id' => $this->user->id,
+            'goal_id' => $this->goal->id,
+            'content' => 'Second reply to root comment',
+            'parent_id' => $rootComment->id,
+        ]);
     });
 
     it('prevents creating a reply to a reply', function () {

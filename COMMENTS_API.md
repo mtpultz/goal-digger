@@ -77,7 +77,7 @@ Create a new comment for a specific goal.
 -   `content`: Required, string, max 1000 characters
 -   `parent_id`: Optional, must exist in comments table
 -   If `parent_id` is provided, it must be a root comment (no parent)
--   Only one reply is allowed per root comment
+-   Root comments can have multiple replies
 -   Cannot reply to a reply (only one level deep)
 
 **Response:**
@@ -193,7 +193,7 @@ Comments support a simple two-level hierarchy:
 
 **Rules:**
 
--   Each root comment can have at most one reply
+-   Each root comment can have multiple replies
 -   You cannot reply to a reply (no deeper nesting)
 -   All comments must be associated with a goal
 -   Comments are ordered by creation date (newest first)

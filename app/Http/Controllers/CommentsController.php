@@ -87,13 +87,6 @@ class CommentsController extends Controller
                     'parent_id' => 'Parent comment must be a root comment for this goal.',
                 ]);
             }
-
-            // Check if the parent comment already has replies (only allow one level deep)
-            if ($parentComment->children()->count() > 0) {
-                throw ValidationException::withMessages([
-                    'parent_id' => 'Cannot add more replies to this comment. Only one level of replies is allowed.',
-                ]);
-            }
         }
 
         $comment = Comment::create([
