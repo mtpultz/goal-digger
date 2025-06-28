@@ -1,109 +1,96 @@
 <?php
 
-namespace Tests\Feature\Goals;
-
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Laravel\Passport\Passport;
+use Symfony\Component\HttpFoundation\Response;
 
-class APIGoalPatchTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    /**
-     * @var \App\Models\User
-     */
-    protected $user;
+test('should change status from active to complete and activate sibling', function () {
+    // Arrange
+    /** @var \App\Models\User $user */
+    $user = User::factory()->createOne();
+    Passport::actingAs($user);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->user = User::factory()->create();
-    }
+    $parent = Goal::factory()->create(['user_id' => $user->id]);
+    $goal1 = Goal::factory()->create(['user_id' => $user->id, 'parent_id' => $parent->id, 'status' => 'ACTIVE']);
+    $goal2 = Goal::factory()->create(['user_id' => $user->id, 'parent_id' => $parent->id, 'status' => 'OPEN']);
 
-    /** @test */
-    public function it_changes_status_from_active_to_complete_and_activates_sibling()
-    {
-        // Arrange
-        $this->actingAs($this->user, 'api');
-        $parent = Goal::factory()->create(['user_id' => $this->user->id]);
-        $goal1 = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'ACTIVE']);
-        $goal2 = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'OPEN']);
+    // Act
+    $response = $this->patchJson("/api/goals/{$goal1->id}", ['status' => 'COMPLETE']);
 
-        // Act
-        $response = $this->patchJson("/api/goals/{$goal1->id}", ['status' => 'COMPLETE']);
+    // Assert
+    $response->assertStatus(Response::HTTP_OK);
+    $this->assertEquals('COMPLETE', $goal1->fresh()->status);
+    $this->assertEquals('ACTIVE', $goal2->fresh()->status);
+});
 
-        // Assert
-        $response->assertOk();
-        $this->assertEquals('COMPLETE', $goal1->fresh()->status);
-        $this->assertEquals('ACTIVE', $goal2->fresh()->status);
-    }
+test('should bubble complete when no open or active siblings', function () {
+    // Arrange
+    /** @var \App\Models\User $user */
+    $user = User::factory()->createOne();
+    Passport::actingAs($user);
 
-    /** @test */
-    public function it_bubbles_complete_when_no_open_or_active_siblings()
-    {
-        // Arrange
-        $this->actingAs($this->user, 'api');
-        $parent = Goal::factory()->create(['user_id' => $this->user->id]);
-        $goal1 = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'ACTIVE']);
-        $goal2 = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'COMPLETE']);
+    $parent = Goal::factory()->create(['user_id' => $user->id]);
+    $goal1 = Goal::factory()->create(['user_id' => $user->id, 'parent_id' => $parent->id, 'status' => 'ACTIVE']);
+    $goal2 = Goal::factory()->create(['user_id' => $user->id, 'parent_id' => $parent->id, 'status' => 'COMPLETE']);
 
-        // Act
-        $response = $this->patchJson("/api/goals/{$goal1->id}", ['status' => 'COMPLETE']);
+    // Act
+    $response = $this->patchJson("/api/goals/{$goal1->id}", ['status' => 'COMPLETE']);
 
-        // Assert
-        $response->assertOk();
-        $this->assertEquals('COMPLETE', $goal1->fresh()->status);
-        $this->assertEquals('COMPLETE', $parent->fresh()->status);
-    }
+    // Assert
+    $response->assertStatus(Response::HTTP_OK);
+    $this->assertEquals('COMPLETE', $goal1->fresh()->status);
+    $this->assertEquals('COMPLETE', $parent->fresh()->status);
+});
 
-    /** @test */
-    public function it_bubbles_open_up_when_status_changes_from_complete_to_open()
-    {
-        // Arrange
-        $this->actingAs($this->user, 'api');
-        $grandparent = Goal::factory()->create(['user_id' => $this->user->id, 'status' => 'COMPLETE']);
-        $parent = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $grandparent->id, 'status' => 'COMPLETE']);
-        $goal = Goal::factory()->create(['user_id' => $this->user->id, 'parent_id' => $parent->id, 'status' => 'COMPLETE']);
+test('should bubble open up when status changes from complete to open', function () {
+    // Arrange
+    /** @var \App\Models\User $user */
+    $user = User::factory()->createOne();
+    Passport::actingAs($user);
 
-        // Act
-        $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'OPEN']);
+    $grandparent = Goal::factory()->create(['user_id' => $user->id, 'status' => 'COMPLETE']);
+    $parent = Goal::factory()->create(['user_id' => $user->id, 'parent_id' => $grandparent->id, 'status' => 'COMPLETE']);
+    $goal = Goal::factory()->create(['user_id' => $user->id, 'parent_id' => $parent->id, 'status' => 'COMPLETE']);
 
-        // Assert
-        $response->assertOk();
-        $this->assertEquals('OPEN', $goal->fresh()->status);
-        $this->assertEquals('OPEN', $parent->fresh()->status);
-        $this->assertEquals('OPEN', $grandparent->fresh()->status);
-    }
+    // Act
+    $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'OPEN']);
 
-    /** @test */
-    public function user_cannot_patch_goal_of_another_user()
-    {
-        // Arrange
-        $this->actingAs($this->user, 'api');
-        $otherUser = User::factory()->create();
-        $goal = Goal::factory()->create(['user_id' => $otherUser->id, 'status' => 'ACTIVE']);
+    // Assert
+    $response->assertStatus(Response::HTTP_OK);
+    $this->assertEquals('OPEN', $goal->fresh()->status);
+    $this->assertEquals('OPEN', $parent->fresh()->status);
+    $this->assertEquals('OPEN', $grandparent->fresh()->status);
+});
 
-        // Act
-        $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'COMPLETE']);
+test('user cannot patch goal of another user', function () {
+    // Arrange
+    /** @var \App\Models\User $user */
+    $user = User::factory()->createOne();
+    Passport::actingAs($user);
 
-        // Assert
-        $response->assertStatus(404); // Should not be found for security reasons
-        $this->assertEquals('ACTIVE', $goal->fresh()->status);
-    }
+    $otherUser = User::factory()->createOne();
+    $goal = Goal::factory()->create(['user_id' => $otherUser->id, 'status' => 'ACTIVE']);
 
-    /** @test */
-    public function unauthenticated_user_cannot_patch_goal()
-    {
-        // Arrange
-        $goal = Goal::factory()->create(['status' => 'ACTIVE']);
+    // Act
+    $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'COMPLETE']);
 
-        // Act
-        $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'COMPLETE']);
+    // Assert
+    $response->assertStatus(Response::HTTP_NOT_FOUND); // Should not be found for security reasons
+    $this->assertEquals('ACTIVE', $goal->fresh()->status);
+});
 
-        // Assert
-        $response->assertStatus(401);
-        $this->assertEquals('ACTIVE', $goal->fresh()->status);
-    }
-}
+test('unauthenticated user cannot patch goal', function () {
+    // Arrange
+    $goal = Goal::factory()->create(['status' => 'ACTIVE']);
+
+    // Act
+    $response = $this->patchJson("/api/goals/{$goal->id}", ['status' => 'COMPLETE']);
+
+    // Assert
+    $response->assertStatus(Response::HTTP_UNAUTHORIZED);
+    $this->assertEquals('ACTIVE', $goal->fresh()->status);
+});
