@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\GoalsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,4 +17,10 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('goals/active', [GoalsController::class, 'getActiveGoals']);
     Route::patch('goals/{id}', [GoalsController::class, 'update']);
+
+    // Comment routes
+    Route::get('goals/{goalId}/comments', [CommentsController::class, 'index']);
+    Route::post('goals/{goalId}/comments', [CommentsController::class, 'store']);
+    Route::patch('goals/{goalId}/comments/{commentId}', [CommentsController::class, 'update']);
+    Route::delete('goals/{goalId}/comments/{commentId}', [CommentsController::class, 'destroy']);
 });
