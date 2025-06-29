@@ -116,4 +116,4 @@ A goal tracker for those chasing goals like they're rich, shiny, and mildly afra
     }
     ```
 
--   Make a request to `POST {{BASE_URL}}/api/register`, which should insert a new user into the `Users` table
+-   Make a request to `POST {{BASE_URL}}/auth/register`, which should insert a new user into the `Users` table
