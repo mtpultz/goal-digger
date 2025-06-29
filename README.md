@@ -46,7 +46,8 @@ A goal tracker for those chasing goals like they're rich, shiny, and mildly afra
 -   Run `php artisan db:seed` to add seed data to the database
 -   Run `composer run dev` to start the application, and
 -   Visit `http://goal-digger.test`
--   Run `npm run setup:mcp` to create the `.cursor/mcp.json` file for Cursor MCP integrations, which assumes you have a `GITHUB_MCP_ACCESS_TOKEN` environment variable set.
+-   Run `npm run setup:mcp` to create the `.cursor/mcp.json` file for Cursor MCP integrations
+    -   Assumes you have a `fine grained access token` set in an environment variable named `GITHUB_MCP_ACCESS_TOKEN` set with repository permissions of `content`, `pull requests`, and `issues`
 
 ## Using Access Tokens
 
