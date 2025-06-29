@@ -13,7 +13,7 @@ All pull requests must follow this process for clarity, consistency, and ease of
 ## PR Format
 
 ### Summary
-Briefly describe what the PR implements and reference the relevant Jira ticket (e.g., [ENG-9](mdc:https:/<your-org>.atlassian.net/browse/ENG-9)).
+Briefly describe what the PR implements and reference the relevant Jira ticket (e.g., [ENG-9](mdc:https:/<your-org>.atlassian.net/browse/ENG-9)) as a clickable link.
 
 ### Changes
 
@@ -64,7 +64,7 @@ State if there are any breaking changes. If none, write "None – all new functi
 List any new dependencies. If none, write "No new dependencies added."
 
 ### Related Issues
-Reference the Jira ticket(s) this PR closes (e.g., Closes [ENG-9](mdc:https:/<your-org>.atlassian.net/browse/ENG-9)).
+Reference the Jira ticket(s) this PR closes (e.g., Closes [ENG-9](mdc:https:/<your-org>.atlassian.net/browse/ENG-9)) as clickable links.
 
 ## Post-PR Requirement
 - **Always provide a link to the created PR** after it is committed.
