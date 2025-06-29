@@ -62,4 +62,45 @@ class AuthController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Login a user and return an access token.
+     */
+    public function login(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Generate access token for the user
+        $token = $user->createToken('auth-token')->accessToken;
+
+        return response()->json([
+            'message' => 'Login successful.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'created_at' => $user->created_at,
+            ],
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+        ], Response::HTTP_OK);
+    }
 }
