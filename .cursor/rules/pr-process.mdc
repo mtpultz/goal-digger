@@ -3,28 +3,33 @@ description: Apply this rule when creating a PR
 globs:
 alwaysApply: false
 ---
-# Pull Request Format Standard
+# Pull Request Process Standard
 
-All pull requests must follow this format for clarity, consistency, and ease of review.
+All pull requests must follow this process for clarity, consistency, and ease of review.
 
-## Summary
+## Pre-PR Requirements
+- **Run all associated tests** for the changes before creating the PR. The PR should only be created if all tests pass.
+
+## PR Format
+
+### Summary
 Briefly describe what the PR implements and reference the relevant Jira ticket (e.g., [ENG-9](mdc:https:/<your-org>.atlassian.net/browse/ENG-9)).
 
-## Changes Made
+### Changes
 
-### New Endpoint/Feature
+#### New Endpoint/Feature
 - **METHOD** `/api/endpoint` – Short description of the endpoint or feature
 
-### Features
+#### Features
 - List key features, validations, and behaviors
 - Mention any security or error handling improvements
 
-### Testing
+#### Testing
 - List the types of tests added and what scenarios they cover
 
-## API Response Examples
+### API Response Examples
 
-### Success
+#### Success
 ```json
 {
   "message": "...",
@@ -34,7 +39,7 @@ Briefly describe what the PR implements and reference the relevant Jira ticket (
 }
 ```
 
-### Validation Error
+#### Validation Error
 ```json
 {
   "message": "Validation failed.",
@@ -42,21 +47,24 @@ Briefly describe what the PR implements and reference the relevant Jira ticket (
 }
 ```
 
-### Other Errors (if applicable)
+#### Other Errors (if applicable)
 ```json
 {
   "message": "Error message."
 }
 ```
 
-## Testing Instructions
+### Testing Instructions
 Describe how to run the tests for this PR (e.g., `php artisan test tests/Feature/Auth/EndpointTest.php`).
 
-## Breaking Changes
+### Breaking Changes
 State if there are any breaking changes. If none, write "None – all new functionality is additive."
 
-## Dependencies
+### Dependencies
 List any new dependencies. If none, write "No new dependencies added."
 
-## Related Issues
+### Related Issues
 Reference the Jira ticket(s) this PR closes (e.g., Closes [ENG-9](mdc:https:/<your-org>.atlassian.net/browse/ENG-9)).
+
+## Post-PR Requirement
+- **Always provide a link to the created PR** after it is committed.
