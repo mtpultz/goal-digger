@@ -19,7 +19,8 @@
         "sasl",
         "shivammathur",
         "sslmode",
-        "Symfony"
+        "Symfony",
+        "mtpultz"
     ],
     "ignorePaths": [
         ".vscode",
