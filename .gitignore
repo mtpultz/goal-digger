@@ -26,3 +26,6 @@ Homestead.yaml
 Thumbs.db
 goal_digger
 .rnd
+
+# Generated files for Cursor setup
+.cursor/mcp.json

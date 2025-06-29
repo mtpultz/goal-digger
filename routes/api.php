@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 // Authentication routes (no middleware required)
 Route::post('auth/register', [AuthController::class, 'register']);
+Route::post('auth/login', [AuthController::class, 'login']);
 
 // Protected routes (require authentication)
 Route::middleware('auth:api')->group(function () {

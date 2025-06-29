@@ -1,6 +1,6 @@
 # Goal Digger
 
-A goal tracker for those chasing goals like they’re rich, shiny, and mildly afraid of commitment.
+A goal tracker for those chasing goals like they're rich, shiny, and mildly afraid of commitment.
 
 ## Table of Contents
 
@@ -46,6 +46,8 @@ A goal tracker for those chasing goals like they’re rich, shiny, and mildly af
 -   Run `php artisan db:seed` to add seed data to the database
 -   Run `composer run dev` to start the application, and
 -   Visit `http://goal-digger.test`
+-   Run `npm run setup:mcp` to create the `.cursor/mcp.json` file for Cursor MCP integrations
+    -   Assumes you have a `fine grained access token` set in an environment variable named `GITHUB_MCP_ACCESS_TOKEN` set with repository permissions of `content`, `pull requests`, and `issues`
 
 ## Using Access Tokens
 
@@ -114,4 +116,4 @@ A goal tracker for those chasing goals like they’re rich, shiny, and mildly af
     }
     ```
 
--   Make a request to `POST {{BASE_URL}}/api/register`, which should insert a new user into the `Users` table
+-   Make a request to `POST {{BASE_URL}}/auth/register`, which should insert a new user into the `Users` table

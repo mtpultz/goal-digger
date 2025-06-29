@@ -12,7 +12,8 @@
         "lint:fix": "eslint . --fix",
         "spell:check": "cspell \"./**/*.*\" --words-only --unique --gitignore",
         "spell:check:errors": "cspell \"./**/*.*\" --words-only --unique --gitignore --quiet",
-        "prepare": "husky"
+        "prepare": "husky",
+        "setup:mcp": "bash scripts/setup-mcp.sh"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
