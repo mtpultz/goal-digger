@@ -1,0 +1,2 @@
+# Ignore project-level MCP configuration that may contain sensitive tokens
+.cursor/mcp.json
