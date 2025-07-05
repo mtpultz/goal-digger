@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Goal Digger - README</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 2em;
+                background: #fafafa;
+                color: #222;
+            }
+            h1,
+            h2,
+            h3 {
+                color: #2c3e50;
+            }
+            pre,
+            code {
+                background: #f4f4f4;
+                padding: 2px 6px;
+                border-radius: 4px;
+            }
+            pre {
+                padding: 1em;
+                overflow-x: auto;
+            }
+            ul,
+            ol {
+                margin-left: 2em;
+            }
+            a {
+                color: #2980b9;
+            }
+            .section {
+                margin-bottom: 2em;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Goal Digger</h1>
+        <p>
+            A goal tracker for those chasing goals like they're rich, shiny, and
+            mildly afraid of commitment.
+        </p>
+
+        <div class="section">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li>Install Dependencies</li>
+                <li>Setup Application</li>
+                <li>Using Access Tokens</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Install Dependencies</h2>
+            <h3>Install VSCode</h3>
+            <ul>
+                <li>
+                    Download and install
+                    <a href="https://code.visualstudio.com">VSCode</a>
+                </li>
+                <li>Install the recommended extensions for the repository</li>
+            </ul>
+            <h3>Install Herd</h3>
+            <ul>
+                <li>
+                    Download and install
+                    <a href="https://herd.laravel.com">Laravel Herd</a>
+                </li>
+                <li>
+                    Provides a development environment with Laravel, PHP, and
+                    Nginx
+                </li>
+            </ul>
+            <h3>Install Postgres</h3>
+            <ul>
+                <li>
+                    Run <code>brew install postgresql@17</code> to install
+                    Postgres
+                </li>
+                <li>
+                    Run <code>brew services start postgresql@17</code> to launch
+                    Postgres at login
+                </li>
+                <li>
+                    Optionally, add <code>psql</code> to your
+                    <code>PATH</code> in <code>.zshrc</code>:
+                </li>
+            </ul>
+            <pre><code>export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"</code></pre>
+            <h3>Install DBeaver</h3>
+            <ul>
+                <li>
+                    Download <a href="https://dbeaver.io/download">DBeaver</a>
+                </li>
+                <li>
+                    Connect to Postgres (default username:
+                    <code>postgres</code> or your macOS username)
+                </li>
+                <li>Create a new database named <code>goal_digger</code></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Setup Application</h2>
+            <ul>
+                <li>
+                    Clone the
+                    <a href="https://github.com/mtpultz/goal-digger"
+                        >repository</a
+                    >
+                    into <code>~/Herd</code>
+                </li>
+                <li>Run <code>composer install</code></li>
+                <li>Run <code>npm install</code></li>
+                <li>
+                    Copy <code>.env.example</code> to <code>.env</code> and
+                    update <code>DB_PASSWORD</code>
+                </li>
+                <li>Run <code>php artisan key:generate</code></li>
+                <li>Run <code>php artisan migrate:fresh</code></li>
+                <li>Run <code>php artisan db:seed</code></li>
+                <li>
+                    Run <code>composer run dev</code> to start the application
+                </li>
+                <li>Visit <code>http://goal-digger.test</code></li>
+                <li>
+                    Run <code>npm run setup:mcp</code> to create the MCP config
+                    file
+                </li>
+            </ul>
+            <p>
+                <strong>Note:</strong> Assumes you have a
+                <code>fine grained access token</code> set in
+                <code>GITHUB_MCP_ACCESS_TOKEN</code> with repository permissions
+                of <code>content</code>, <code>pull requests</code>, and
+                <code>issues</code>.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Using Access Tokens</h2>
+            <ul>
+                <li>
+                    Install an HTTP client (e.g.,
+                    <a href="https://www.postman.com/downloads">Postman</a>,
+                    <a href="https://insomnia.rest/download">Insomnia</a>)
+                </li>
+                <li>Run <code>php artisan passport:client --client</code></li>
+                <li>Set the default client name of Goal Digger</li>
+                <li>
+                    Copy the <code>CLIENT_ID</code> and
+                    <code>CLIENT_SECRET</code> into your HTTP client environment
+                </li>
+            </ul>
+            <h3>Postman Setup</h3>
+            <pre><code>BASE_URL: http://goal-digger.test
+CLIENT_ID: YOUR_CLIENT_ID
+CLIENT_SECRET: YOUR_CLIENT_SECRET
+CLIENT_USERNAME: YOUR_USERNAME
+CLIENT_PASSWORD: YOUR_PASSWORD
+ACCESS_TOKEN: SET_DYNAMICALLY_LEAVE_EMPTY</code></pre>
+            <p>Create JSON headers preset:</p>
+            <pre><code>Accept:application/json
+Content-Type:application/json</code></pre>
+            <p>Create a separate Auth preset header:</p>
+            <pre><code>Client-Id:{{CLIENT_ID}}
+Client-Secret:{{CLIENT_SECRET}}</code></pre>
+            <p>
+                Create a <code>GET {{BASE_URL}}/oauth/token</code> endpoint and
+                add this test script:
+            </p>
+            <pre><code>pm.test("response is ok", () => {
+    pm.response.to.have.status(200);
+});
+
+var jsonData = JSON.parse(responseBody);
+pm.environment.set("ACCESS_TOKEN", jsonData.access_token);</code></pre>
+            <ul>
+                <li>
+                    Store the endpoint in a collection named <code>OAuth2</code>
+                </li>
+                <li>
+                    Make a request to
+                    <code>POST {{BASE_URL}}/api/register</code> to register a
+                    new user
+                </li>
+                <li>
+                    Set Authorization to Bearer Token with
+                    <code>{{ACCESS_TOKEN}}</code>
+                </li>
+                <li>Add the JSON and Auth preset headers</li>
+                <li>Add a registration payload:</li>
+            </ul>
+            <pre><code>{
+    "name": "Registration Example",
+    "email": "registration@example.com",
+    "password": "password",
+    "password_confirmation": "password"
+}</code></pre>
+            <p>
+                Make a request to
+                <code>POST {{BASE_URL}}/auth/register</code> to insert a new
+                user.
+            </p>
+        </div>
+    </body>
+</html>
