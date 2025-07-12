@@ -7,6 +7,7 @@ import Goals from "../pages/Goals";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import Streamlined from "../pages/Streamlined";
 import ProtectedRoute from "./ProtectedRoute";
 
 const App: React.FC = () => {
@@ -32,6 +33,14 @@ const App: React.FC = () => {
                             element={
                                 <ProtectedRoute>
                                     <GoalDetail />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/streamlined"
+                            element={
+                                <ProtectedRoute>
+                                    <Streamlined />
                                 </ProtectedRoute>
                             }
                         />
