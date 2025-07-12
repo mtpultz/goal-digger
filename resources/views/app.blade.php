@@ -3,11 +3,13 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name') }}</title>
+
+        @vite(['resources/css/app.css', 'resources/js/app.jsx'])
     </head>
     <body>
-        <h1>{{ config('app.name') }}</h1>
-        <p>A goal tracker for those chasing goals like they’re rich, shiny, and mildly afraid of commitment.</p>
+        <div id="app"></div>
     </body>
 </html>

@@ -22,6 +22,7 @@ class Goal extends Model
         'user_id',
         'title',
         'description',
+        'category',
         'due_date',
         'status',
         'links',

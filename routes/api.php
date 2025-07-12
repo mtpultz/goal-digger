@@ -20,6 +20,12 @@ Route::middleware('auth:api')->group(function () {
         return $request->user();
     });
 
+    // Goals routes
+    Route::get('goals', [GoalsController::class, 'index']);
+    Route::post('goals', [GoalsController::class, 'store']);
+    Route::get('goals/{id}', [GoalsController::class, 'show']);
+    Route::put('goals/{id}', [GoalsController::class, 'update']);
+    Route::delete('goals/{id}', [GoalsController::class, 'destroy']);
     Route::get('goals/active', [GoalsController::class, 'getActiveGoals']);
     Route::patch('goals/{id}', [GoalsController::class, 'update']);
 

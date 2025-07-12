@@ -18,9 +18,11 @@ class GoalResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
+            'category' => $this->category,
             'status' => $this->status,
             'due_date' => $this->when(! is_null($this->due_date), optional($this->due_date)->toISOString()),
             'created_at' => $this->when(! is_null($this->created_at), optional($this->created_at)->toISOString()),
+            'updated_at' => $this->when(! is_null($this->updated_at), optional($this->updated_at)->toISOString()),
             'links' => $this->when(! is_null($this->links), $this->links),
             'root' => $this->when(
                 ! $this->isRoot() && $this->relationLoaded('root'),

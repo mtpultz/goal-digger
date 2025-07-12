@@ -12,16 +12,111 @@ use Illuminate\Support\Facades\DB;
 class GoalsController extends Controller
 {
     /**
-     * Update the status of a goal.
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $user = Auth::user();
+        $goals = $user->goals()->with(['root', 'parent'])->paginate(25);
+
+        return new GoalCollection($goals);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'target_date' => 'nullable|date',
+            'category' => 'nullable|string|max:255',
+        ]);
+
+        $user = Auth::user();
+        $goal = $user->goals()->create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'due_date' => $request->target_date,
+            'status' => 'OPEN',
+        ]);
+
+        $goal->load(['root', 'parent']);
+
+        return new GoalResource($goal);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
+    {
+        $user = Auth::user();
+        $goal = $user->goals()->with(['root', 'parent'])->findOrFail($id);
+
+        return new GoalResource($goal);
+    }
+
+    /**
+     * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:OPEN,ACTIVE,COMPLETE,SKIPPED',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'target_date' => 'sometimes|nullable|date',
+            'category' => 'sometimes|nullable|string|max:255',
+            'status' => 'sometimes|required|in:OPEN,ACTIVE,COMPLETE,SKIPPED',
         ]);
 
         $user = Auth::user();
-        $goal = Goal::where('id', $id)->where('user_id', $user->id)->firstOrFail();
+        $goal = $user->goals()->findOrFail($id);
+
+        // If updating status, use the existing logic
+        if ($request->has('status')) {
+            return $this->updateStatus($request, $goal);
+        }
+
+        // Update other fields
+        $goal->update([
+            'title' => $request->get('title', $goal->title),
+            'description' => $request->get('description', $goal->description),
+            'due_date' => $request->get('target_date', $goal->due_date),
+        ]);
+
+        $goal->load(['root', 'parent']);
+
+        return new GoalResource($goal);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        $goal = $user->goals()->findOrFail($id);
+
+        $goal->delete();
+
+        return response()->json(['message' => 'Goal deleted successfully']);
+    }
+
+    public function getActiveGoals(): GoalCollection
+    {
+        $user = Auth::user();
+        $activeGoals = $user->goals()->with(['root', 'parent'])->where('status', 'ACTIVE')->paginate(25);
+
+        return new GoalCollection($activeGoals);
+    }
+
+    /**
+     * Update the status of a goal.
+     */
+    protected function updateStatus(Request $request, Goal $goal)
+    {
         $newStatus = $request->input('status');
         $oldStatus = $goal->status;
 
@@ -69,16 +164,9 @@ class GoalsController extends Controller
         });
 
         $goal->refresh();
+        $goal->load(['root', 'parent']);
 
         return new GoalResource($goal);
-    }
-
-    public function getActiveGoals(): GoalCollection
-    {
-        $user = Auth::user();
-        $activeGoals = $user->goals()->with(['root', 'parent'])->where('status', 'ACTIVE')->paginate(25);
-
-        return new GoalCollection($activeGoals);
     }
 
     /**
