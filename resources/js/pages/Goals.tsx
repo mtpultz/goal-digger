@@ -1,13 +1,31 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const Goals = () => {
-    const [goals, setGoals] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [showCreateForm, setShowCreateForm] = useState(false);
-    const [newGoal, setNewGoal] = useState({
+interface Goal {
+    id: number;
+    title: string;
+    description: string;
+    status: string;
+    category: string;
+    target_date?: string;
+    created_at: string;
+    updated_at: string;
+}
+
+interface NewGoal {
+    title: string;
+    description: string;
+    target_date: string;
+    category: string;
+}
+
+const Goals: React.FC = () => {
+    const [goals, setGoals] = useState<Goal[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string>("");
+    const [showCreateForm, setShowCreateForm] = useState<boolean>(false);
+    const [newGoal, setNewGoal] = useState<NewGoal>({
         title: "",
         description: "",
         target_date: "",
@@ -18,7 +36,7 @@ const Goals = () => {
         fetchGoals();
     }, []);
 
-    const fetchGoals = async () => {
+    const fetchGoals = async (): Promise<void> => {
         try {
             const response = await axios.get("/api/goals");
             setGoals(response.data.data || []);
@@ -30,7 +48,9 @@ const Goals = () => {
         }
     };
 
-    const handleCreateGoal = async (e) => {
+    const handleCreateGoal = async (
+        e: FormEvent<HTMLFormElement>
+    ): Promise<void> => {
         e.preventDefault();
         try {
             const response = await axios.post("/api/goals", newGoal);
@@ -48,14 +68,18 @@ const Goals = () => {
         }
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (
+        e: ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
+    ): void => {
         setNewGoal({
             ...newGoal,
             [e.target.name]: e.target.value,
         });
     };
 
-    const getStatusColor = (status) => {
+    const getStatusColor = (status: string): string => {
         switch (status) {
             case "completed":
                 return "bg-green-100 text-green-800";
@@ -122,7 +146,7 @@ const Goals = () => {
                                 name="description"
                                 value={newGoal.description}
                                 onChange={handleInputChange}
-                                rows="3"
+                                rows={3}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="Enter goal description"
                             />

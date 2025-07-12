@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const Home = () => {
+const Home: React.FC = () => {
     const { isAuthenticated } = useAuth();
 
     return (

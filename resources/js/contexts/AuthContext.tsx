@@ -1,8 +1,42 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-const AuthContext = createContext();
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    created_at: string;
+}
 
-export const useAuth = () => {
+interface LoginCredentials {
+    email: string;
+    password: string;
+}
+
+interface RegisterData {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+}
+
+interface AuthResult {
+    success: boolean;
+    error?: string;
+}
+
+interface AuthContextType {
+    user: User | null;
+    isAuthenticated: boolean;
+    loading: boolean;
+    login: (credentials: LoginCredentials) => Promise<AuthResult>;
+    register: (userData: RegisterData) => Promise<AuthResult>;
+    logout: () => void;
+    getToken: () => string | null;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const useAuth = (): AuthContextType => {
     const context = useContext(AuthContext);
     if (!context) {
         throw new Error("useAuth must be used within an AuthProvider");
@@ -10,8 +44,12 @@ export const useAuth = () => {
     return context;
 };
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+interface AuthProviderProps {
+    children: any;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -33,7 +71,9 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = async (credentials) => {
+    const login = async (
+        credentials: LoginCredentials
+    ): Promise<AuthResult> => {
         try {
             const response = await fetch("/api/auth/login", {
                 method: "POST",
@@ -70,7 +110,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (userData) => {
+    const register = async (userData: RegisterData): Promise<AuthResult> => {
         try {
             const response = await fetch("/api/auth/register", {
                 method: "POST",
@@ -100,18 +140,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
+    const logout = (): void => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("user");
         setUser(null);
         setIsAuthenticated(false);
     };
 
-    const getToken = () => {
+    const getToken = (): string | null => {
         return localStorage.getItem("access_token");
     };
 
-    const value = {
+    const value: AuthContextType = {
         user,
         isAuthenticated,
         loading,

@@ -9,7 +9,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ProtectedRoute from "./ProtectedRoute";
 
-function App() {
+const App: React.FC = () => {
     return (
         <AuthProvider>
             <div className="min-h-screen bg-gray-50">
@@ -40,6 +40,6 @@ function App() {
             </div>
         </AuthProvider>
     );
-}
+};
 
 export default App;

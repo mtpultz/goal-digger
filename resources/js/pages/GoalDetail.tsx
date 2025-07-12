@@ -1,22 +1,46 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-const GoalDetail = () => {
-    const { id } = useParams();
-    const [goal, setGoal] = useState(null);
-    const [comments, setComments] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [newComment, setNewComment] = useState("");
-    const [submittingComment, setSubmittingComment] = useState(false);
+interface Goal {
+    id: number;
+    title: string;
+    description: string;
+    status: string;
+    category: string;
+    target_date?: string;
+    created_at: string;
+    updated_at: string;
+}
+
+interface Comment {
+    id: number;
+    content: string;
+    user?: {
+        id: number;
+        name: string;
+    };
+    created_at: string;
+    updated_at: string;
+}
+
+const GoalDetail: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const [goal, setGoal] = useState<Goal | null>(null);
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string>("");
+    const [newComment, setNewComment] = useState<string>("");
+    const [submittingComment, setSubmittingComment] = useState<boolean>(false);
 
     useEffect(() => {
-        fetchGoal();
-        fetchComments();
+        if (id) {
+            fetchGoal();
+            fetchComments();
+        }
     }, [id]);
 
-    const fetchGoal = async () => {
+    const fetchGoal = async (): Promise<void> => {
         try {
             const response = await axios.get(`/api/goals/${id}`);
             setGoal(response.data.data);
@@ -28,7 +52,7 @@ const GoalDetail = () => {
         }
     };
 
-    const fetchComments = async () => {
+    const fetchComments = async (): Promise<void> => {
         try {
             const response = await axios.get(`/api/goals/${id}/comments`);
             setComments(response.data.data || []);
@@ -37,7 +61,9 @@ const GoalDetail = () => {
         }
     };
 
-    const handleSubmitComment = async (e) => {
+    const handleSubmitComment = async (
+        e: FormEvent<HTMLFormElement>
+    ): Promise<void> => {
         e.preventDefault();
         if (!newComment.trim()) return;
 
@@ -56,7 +82,7 @@ const GoalDetail = () => {
         }
     };
 
-    const getStatusColor = (status) => {
+    const getStatusColor = (status: string): string => {
         switch (status) {
             case "completed":
                 return "bg-green-100 text-green-800";
@@ -195,8 +221,10 @@ const GoalDetail = () => {
                         <textarea
                             id="comment"
                             value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            rows="3"
+                            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                                setNewComment(e.target.value)
+                            }
+                            rows={3}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Share your thoughts or progress..."
                             required

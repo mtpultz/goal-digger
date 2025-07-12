@@ -1,27 +1,36 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const Register = () => {
-    const [formData, setFormData] = useState({
+interface RegisterFormData {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+}
+
+const Register: React.FC = () => {
+    const [formData, setFormData] = useState<RegisterFormData>({
         name: "",
         email: "",
         password: "",
         password_confirmation: "",
     });
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
     const { register } = useAuth();
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (
+        e: FormEvent<HTMLFormElement>
+    ): Promise<void> => {
         e.preventDefault();
         setError("");
 
@@ -37,7 +46,7 @@ const Register = () => {
         if (result.success) {
             navigate("/login");
         } else {
-            setError(result.error);
+            setError(result.error || "Registration failed");
         }
 
         setLoading(false);
