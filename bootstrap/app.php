@@ -3,7 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Laravel\Passport\Http\Middleware\CreateFreshApiToken;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,10 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // WARNING: Must be last middleware listed in middleware stack
-        $middleware->web(append: [
-            CreateFreshApiToken::class,
-        ]);
+        //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
