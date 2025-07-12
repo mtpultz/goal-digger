@@ -29,6 +29,7 @@ interface Goal {
     target_date?: string;
     created_at: string;
     updated_at: string;
+    parent_id?: number;
 }
 
 interface NewGoal {
@@ -56,7 +57,7 @@ const Goals: React.FC = () => {
 
     const fetchGoals = async (): Promise<void> => {
         try {
-            const response = await axios.get("/api/goals");
+            const response = await axios.get("/api/goals?root=true");
             setGoals(response.data.data || []);
         } catch (error) {
             console.error("Error fetching goals:", error);

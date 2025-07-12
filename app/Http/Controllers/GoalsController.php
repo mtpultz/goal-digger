@@ -17,7 +17,14 @@ class GoalsController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $goals = $user->goals()->with(['root', 'parent'])->paginate(25);
+        $query = $user->goals()->with(['root', 'parent']);
+
+        // If root parameter is true, only show root goals (goals without parent_id)
+        if (request()->boolean('root')) {
+            $query->whereNull('parent_id');
+        }
+
+        $goals = $query->paginate(25);
 
         return new GoalCollection($goals);
     }
