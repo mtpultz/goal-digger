@@ -32,6 +32,10 @@ class GoalResource extends JsonResource
                 ! $this->isRoot() && $this->relationLoaded('parent'),
                 fn () => new self($this->parent)
             ),
+            'children' => $this->when(
+                $this->relationLoaded('children'),
+                fn () => self::collection($this->children)
+            ),
         ];
     }
 }

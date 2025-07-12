@@ -32,10 +32,22 @@ class GoalsController extends Controller
             'description' => 'nullable|string',
             'target_date' => 'nullable|date',
             'category' => 'nullable|string|max:255',
+            'parent_id' => 'nullable|exists:goals,id',
         ]);
 
         $user = Auth::user();
+
+        // If parent_id is provided, verify the parent goal belongs to the user
+        if ($request->has('parent_id')) {
+            $parentGoal = $user->goals()->findOrFail($request->parent_id);
+            $rootId = $parentGoal->root_id ?? $parentGoal->id;
+        } else {
+            $rootId = null;
+        }
+
         $goal = $user->goals()->create([
+            'parent_id' => $request->parent_id,
+            'root_id' => $rootId,
             'title' => $request->title,
             'description' => $request->description,
             'due_date' => $request->target_date,
@@ -54,6 +66,13 @@ class GoalsController extends Controller
     {
         $user = Auth::user();
         $goal = $user->goals()->with(['root', 'parent'])->findOrFail($id);
+
+        // If include_children parameter is present, load child goals
+        if (request()->has('include_children')) {
+            $goal->load(['children' => function ($query) {
+                $query->with(['root', 'parent']);
+            }]);
+        }
 
         return new GoalResource($goal);
     }
