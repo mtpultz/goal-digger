@@ -25,6 +25,10 @@ interface Goal {
     parent_id?: number;
     root_id?: number;
     children?: Goal[];
+    parent?: {
+        id: number;
+        title: string;
+    };
 }
 
 interface Comment {
@@ -201,6 +205,23 @@ const GoalDetail: React.FC = () => {
                 </Link>
             </div>
 
+            {/* Breadcrumb Navigation */}
+            {goal.parent && (
+                <div className="mb-4 text-sm text-gray-600">
+                    <span>Goal Hierarchy: </span>
+                    <Link
+                        to={`/goals/${goal.parent.id}`}
+                        className="text-blue-600 hover:text-blue-700"
+                    >
+                        {goal.parent.title}
+                    </Link>
+                    <span className="mx-2">→</span>
+                    <span className="font-medium text-gray-900">
+                        {goal.title}
+                    </span>
+                </div>
+            )}
+
             <Card className="mb-8">
                 <CardContent className="p-8">
                     <div className="flex justify-between items-start mb-6">
@@ -280,7 +301,14 @@ const GoalDetail: React.FC = () => {
             <Card className="mb-8">
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <CardTitle>Sub-Goals</CardTitle>
+                        <div className="flex items-center space-x-2">
+                            <CardTitle>Sub-Goals</CardTitle>
+                            {subGoals.length > 0 && (
+                                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                                    {subGoals.length}
+                                </span>
+                            )}
+                        </div>
                         <Button
                             onClick={() => setShowSubGoalForm(true)}
                             size="sm"
@@ -396,7 +424,7 @@ const GoalDetail: React.FC = () => {
                                                 {subGoal.description}
                                             </p>
                                         )}
-                                        <div className="flex justify-between items-center text-xs text-gray-500">
+                                        <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
                                             <span>
                                                 Created:{" "}
                                                 {new Date(
@@ -411,6 +439,14 @@ const GoalDetail: React.FC = () => {
                                                     ).toLocaleDateString()}
                                                 </span>
                                             )}
+                                        </div>
+                                        <div className="pt-3 border-t border-gray-200">
+                                            <Link
+                                                to={`/goals/${subGoal.id}`}
+                                                className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                                            >
+                                                View Details →
+                                            </Link>
                                         </div>
                                     </CardContent>
                                 </Card>
