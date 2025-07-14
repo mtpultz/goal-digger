@@ -11,6 +11,13 @@ import {
 } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "../components/ui/select";
 import { Textarea } from "../components/ui/textarea";
 
 interface Goal {
@@ -61,6 +68,7 @@ const GoalDetail: React.FC = () => {
         target_date: "",
     });
     const [submittingSubGoal, setSubmittingSubGoal] = useState<boolean>(false);
+    const [updatingStatus, setUpdatingStatus] = useState<boolean>(false);
 
     useEffect(() => {
         if (id) {
@@ -89,6 +97,23 @@ const GoalDetail: React.FC = () => {
             setComments(response.data.data || []);
         } catch (error) {
             console.error("Error fetching comments:", error);
+        }
+    };
+
+    const handleStatusChange = async (newStatus: string): Promise<void> => {
+        if (!goal || newStatus === goal.status) return;
+
+        setUpdatingStatus(true);
+        try {
+            const response = await axios.patch(`/api/goals/${id}`, {
+                status: newStatus,
+            });
+            setGoal(response.data.data);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            setError("Failed to update status");
+        } finally {
+            setUpdatingStatus(false);
         }
     };
 
@@ -154,14 +179,31 @@ const GoalDetail: React.FC = () => {
 
     const getStatusColor = (status: string): string => {
         switch (status) {
-            case "completed":
+            case "COMPLETE":
                 return "bg-green-100 text-green-800";
-            case "in_progress":
+            case "ACTIVE":
                 return "bg-blue-100 text-blue-800";
-            case "not_started":
+            case "OPEN":
                 return "bg-gray-100 text-gray-800";
+            case "SKIPPED":
+                return "bg-yellow-100 text-yellow-800";
             default:
                 return "bg-gray-100 text-gray-800";
+        }
+    };
+
+    const getStatusLabel = (status: string): string => {
+        switch (status) {
+            case "COMPLETE":
+                return "Complete";
+            case "ACTIVE":
+                return "Active";
+            case "OPEN":
+                return "Open";
+            case "SKIPPED":
+                return "Skipped";
+            default:
+                return status;
         }
     };
 
@@ -225,15 +267,57 @@ const GoalDetail: React.FC = () => {
             <Card className="mb-8">
                 <CardContent className="p-8">
                     <div className="flex justify-between items-start mb-6">
-                        <h1 className="text-3xl font-bold text-gray-900">
-                            {goal.title}
-                        </h1>
+                        <div className="flex-1">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                                {goal.title}
+                            </h1>
+
+                            {/* Status Selector */}
+                            <div className="flex items-center space-x-4">
+                                <Label
+                                    htmlFor="status"
+                                    className="text-sm font-medium text-gray-700"
+                                >
+                                    Status:
+                                </Label>
+                                <Select
+                                    value={goal.status}
+                                    onValueChange={handleStatusChange}
+                                    disabled={updatingStatus}
+                                >
+                                    <SelectTrigger className="w-48">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="OPEN">
+                                            Open
+                                        </SelectItem>
+                                        <SelectItem value="ACTIVE">
+                                            Active
+                                        </SelectItem>
+                                        <SelectItem value="COMPLETE">
+                                            Complete
+                                        </SelectItem>
+                                        <SelectItem value="SKIPPED">
+                                            Skipped
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {updatingStatus && (
+                                    <div className="text-sm text-gray-500">
+                                        Updating...
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Current Status Badge */}
                         <span
                             className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
                                 goal.status
                             )}`}
                         >
-                            {goal.status.replace("_", " ")}
+                            {getStatusLabel(goal.status)}
                         </span>
                     </div>
 
@@ -413,10 +497,7 @@ const GoalDetail: React.FC = () => {
                                                     subGoal.status
                                                 )}`}
                                             >
-                                                {subGoal.status.replace(
-                                                    "_",
-                                                    " "
-                                                )}
+                                                {getStatusLabel(subGoal.status)}
                                             </span>
                                         </div>
                                         {subGoal.description && (

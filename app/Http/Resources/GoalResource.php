@@ -24,6 +24,7 @@ class GoalResource extends JsonResource
             'created_at' => $this->when(! is_null($this->created_at), optional($this->created_at)->toISOString()),
             'updated_at' => $this->when(! is_null($this->updated_at), optional($this->updated_at)->toISOString()),
             'links' => $this->when(! is_null($this->links), $this->links),
+            'comments_count' => $this->when(isset($this->comments_count), $this->comments_count),
             'root' => $this->when(
                 ! $this->isRoot() && $this->relationLoaded('root'),
                 fn () => new self($this->root)
