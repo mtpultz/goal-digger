@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { AuthProvider } from "../contexts/AuthContext";
 import Navbar from "../layout/Navbar";
+import FullGoal from "../pages/FullGoal";
 import GoalDetail from "../pages/GoalDetail";
 import Goals from "../pages/Goals";
 import Home from "../pages/Home";
@@ -33,6 +34,14 @@ const App: React.FC = () => {
                             element={
                                 <ProtectedRoute>
                                     <GoalDetail />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/goals/:id/full"
+                            element={
+                                <ProtectedRoute>
+                                    <FullGoal />
                                 </ProtectedRoute>
                             }
                         />

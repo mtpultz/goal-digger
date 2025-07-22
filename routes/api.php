@@ -25,6 +25,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('goals', [GoalsController::class, 'store']);
     Route::get('goals/active', [GoalsController::class, 'getActiveGoals']);
     Route::get('goals/{id}', [GoalsController::class, 'show']);
+    Route::get('goals/{id}/hierarchy', [GoalsController::class, 'getGoalHierarchy']);
     Route::put('goals/{id}', [GoalsController::class, 'update']);
     Route::delete('goals/{id}', [GoalsController::class, 'destroy']);
 

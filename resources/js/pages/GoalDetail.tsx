@@ -309,6 +309,15 @@ const GoalDetail: React.FC = () => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* View Full Tree Button */}
+                            <div className="mt-4">
+                                <Button asChild variant="outline" size="sm">
+                                    <Link to={`/goals/${id}/full`}>
+                                        🌳 View Full Tree
+                                    </Link>
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Current Status Badge */}

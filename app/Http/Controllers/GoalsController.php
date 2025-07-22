@@ -143,6 +143,28 @@ class GoalsController extends Controller
     }
 
     /**
+     * Return the entire goal hierarchy for a root goal.
+     */
+    public function getGoalHierarchy($id)
+    {
+        $user = Auth::user();
+        $goal = $user->goals()->findOrFail($id);
+
+        if ($goal->parent_id !== null) {
+            return response()->json([
+                'error' => 'Goal is not a root goal.',
+            ], 400);
+        }
+
+        // Recursively load all descendants
+        $goal->load(['children' => function ($query) {
+            $query->with('children');
+        }]);
+
+        return new GoalResource($goal);
+    }
+
+    /**
      * Update the status of a goal.
      */
     protected function updateStatus(Request $request, Goal $goal)
