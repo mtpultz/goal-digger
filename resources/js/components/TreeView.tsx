@@ -18,33 +18,18 @@ interface TreeViewProps {
     selectedId?: number;
 }
 
-const getStatusColor = (status: string): string => {
+const getStatusIndicator = (status: string): { color: string; symbol: string; bgColor: string } => {
     switch (status) {
         case "COMPLETE":
-            return "bg-green-100 text-green-800";
+            return { color: "text-green-600", symbol: "✓", bgColor: "bg-green-50 border-green-200" };
         case "ACTIVE":
-            return "bg-blue-100 text-blue-800";
+            return { color: "text-blue-600", symbol: "●", bgColor: "bg-blue-50 border-blue-200" };
         case "OPEN":
-            return "bg-gray-100 text-gray-800";
+            return { color: "text-gray-500", symbol: "○", bgColor: "bg-gray-50 border-gray-200" };
         case "SKIPPED":
-            return "bg-yellow-100 text-yellow-800";
+            return { color: "text-yellow-600", symbol: "⏸", bgColor: "bg-yellow-50 border-yellow-200" };
         default:
-            return "bg-gray-100 text-gray-800";
-    }
-};
-
-const getStatusLabel = (status: string): string => {
-    switch (status) {
-        case "COMPLETE":
-            return "Complete";
-        case "ACTIVE":
-            return "Active";
-        case "OPEN":
-            return "Open";
-        case "SKIPPED":
-            return "Skipped";
-        default:
-            return status;
+            return { color: "text-gray-500", symbol: "○", bgColor: "bg-gray-50 border-gray-200" };
     }
 };
 
@@ -56,83 +41,92 @@ export const TreeView: React.FC<TreeViewProps> = ({
     const [expanded, setExpanded] = useState<boolean>(true);
     const isSelected = node.id === selectedId;
     const hasChildren = node.children && node.children.length > 0;
+    const statusInfo = getStatusIndicator(node.status);
+    
+    // Use progressive indentation that doesn't get too wide
+    const indentAmount = Math.min(level * 16, 80); // Cap at 80px to prevent excessive nesting
+    const lineStyle = level > 0 ? { 
+        borderLeft: `2px solid ${level % 2 === 1 ? '#e5e7eb' : '#f3f4f6'}`,
+        paddingLeft: '12px',
+        marginLeft: `${Math.min(level * 12, 60)}px` // Capped indentation
+    } : {};
 
     return (
-        <div style={{ marginLeft: level * 24 }} className="mb-2">
+        <div className="mb-1">
             <div
-                className={`flex items-center p-3 rounded-lg border transition-colors ${
+                style={lineStyle}
+                className={`flex items-center py-2 px-3 rounded-md border transition-all duration-200 hover:shadow-sm ${
                     isSelected
-                        ? "bg-blue-50 border-blue-200"
-                        : "bg-white border-gray-200 hover:bg-gray-50"
+                        ? "bg-indigo-50 border-indigo-200 shadow-sm"
+                        : `${statusInfo.bgColor} hover:bg-opacity-80`
                 }`}
             >
-                {hasChildren && (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setExpanded((e) => !e)}
-                        className="mr-2 p-1 h-6 w-6"
-                        tabIndex={-1}
-                    >
-                        {expanded ? "▼" : "▶"}
-                    </Button>
-                )}
-                <div className="flex-1">
+                {/* Expandable indicator and status symbol */}
+                <div className="flex items-center space-x-2 min-w-0">
+                    {hasChildren ? (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setExpanded((e) => !e)}
+                            className="p-0 h-5 w-5 hover:bg-gray-200 transition-colors"
+                            tabIndex={-1}
+                        >
+                            <span className="text-xs text-gray-600">
+                                {expanded ? "▾" : "▸"}
+                            </span>
+                        </Button>
+                    ) : (
+                        <div className="w-5" />
+                    )}
+                    
+                    {/* Status indicator */}
+                    <span className={`text-sm font-medium ${statusInfo.color}`}>
+                        {statusInfo.symbol}
+                    </span>
+                </div>
+
+                {/* Goal content */}
+                <div className="flex-1 min-w-0 ml-3">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            <h3
-                                className={`font-medium ${
+                        <div className="flex items-center space-x-2 min-w-0">
+                            <Link
+                                to={`/goals/${node.id}`}
+                                className={`font-medium truncate hover:text-blue-600 transition-colors ${
                                     isSelected
-                                        ? "text-blue-900"
+                                        ? "text-indigo-900"
                                         : "text-gray-900"
                                 }`}
+                                title={node.title}
                             >
                                 {node.title}
-                            </h3>
-                            <span
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                    node.status
-                                )}`}
-                            >
-                                {getStatusLabel(node.status)}
-                            </span>
+                            </Link>
+                            {hasChildren && (
+                                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                                    {node.children!.length}
+                                </span>
+                            )}
                         </div>
-                        <Link
-                            to={`/goals/${node.id}`}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                        >
-                            View Details
-                        </Link>
+                        
+                        {/* Target date if available */}
+                        {node.target_date && (
+                            <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">
+                                {new Date(node.target_date).toLocaleDateString()}
+                            </span>
+                        )}
                     </div>
+                    
+                    {/* Description on separate line if present */}
                     {node.description && (
-                        <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                        <p className="text-xs text-gray-600 mt-1 line-clamp-1" title={node.description}>
                             {node.description}
                         </p>
                     )}
-                    <div className="flex items-center space-x-4 text-xs text-gray-500 mt-2">
-                        <span>
-                            Created:{" "}
-                            {new Date(node.created_at).toLocaleDateString()}
-                        </span>
-                        {node.target_date && (
-                            <span>
-                                Target:{" "}
-                                {new Date(
-                                    node.target_date
-                                ).toLocaleDateString()}
-                            </span>
-                        )}
-                        {hasChildren && (
-                            <span>
-                                {node.children!.length} sub-goal
-                                {node.children!.length !== 1 ? "s" : ""}
-                            </span>
-                        )}
-                    </div>
                 </div>
             </div>
+            
+            {/* Children */}
             {hasChildren && expanded && (
-                <div className="mt-2">
+                <div className="mt-1 space-y-1">
                     {node.children!.map((child) => (
                         <TreeView
                             key={child.id}
