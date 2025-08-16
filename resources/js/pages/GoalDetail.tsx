@@ -19,6 +19,7 @@ import {
     SelectValue,
 } from "../components/ui/select";
 import { Textarea } from "../components/ui/textarea";
+import EditGoalForm, { EditableGoal } from "../components/EditGoalForm";
 
 interface Goal {
     id: number;
@@ -69,6 +70,7 @@ const GoalDetail: React.FC = () => {
     });
     const [submittingSubGoal, setSubmittingSubGoal] = useState<boolean>(false);
     const [updatingStatus, setUpdatingStatus] = useState<boolean>(false);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
 
     useEffect(() => {
         if (id) {
@@ -177,6 +179,26 @@ const GoalDetail: React.FC = () => {
         });
     };
 
+    const handleEditSave = async (updatedGoal: EditableGoal): Promise<void> => {
+        setIsEditing(false);
+        try {
+            const response = await axios.patch(`/api/goals/${updatedGoal.id}`, {
+                title: updatedGoal.title,
+                description: updatedGoal.description,
+                category: updatedGoal.category,
+                target_date: updatedGoal.target_date,
+            });
+            setGoal(response.data.data);
+        } catch (error) {
+            console.error("Error updating goal:", error);
+            setError("Failed to update goal");
+        }
+    };
+
+    const handleEditCancel = (): void => {
+        setIsEditing(false);
+    };
+
     const getStatusColor = (status: string): string => {
         switch (status) {
             case "COMPLETE":
@@ -272,7 +294,7 @@ const GoalDetail: React.FC = () => {
                                 {goal.title}
                             </h1>
 
-                            {/* Status Selector */}
+                            {/* Status Selector and Edit Button */}
                             <div className="flex items-center space-x-4">
                                 <Label
                                     htmlFor="status"
@@ -307,6 +329,16 @@ const GoalDetail: React.FC = () => {
                                     <div className="text-sm text-gray-500">
                                         Updating...
                                     </div>
+                                )}
+                                {goal.status === "OPEN" && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setIsEditing(true)}
+                                        className="ml-4"
+                                    >
+                                        Edit Goal
+                                    </Button>
                                 )}
                             </div>
 
@@ -545,6 +577,23 @@ const GoalDetail: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Edit form overlay */}
+            {isEditing && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <EditGoalForm
+                        goal={{
+                            id: goal.id,
+                            title: goal.title,
+                            description: goal.description,
+                            category: goal.category,
+                            target_date: goal.target_date,
+                        }}
+                        onSave={handleEditSave}
+                        onCancel={handleEditCancel}
+                    />
+                </div>
+            )}
 
             {/* Comments Section */}
             <Card>

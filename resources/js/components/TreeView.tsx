@@ -7,6 +7,7 @@ export interface GoalTreeNode {
     title: string;
     status: string;
     description?: string;
+    category?: string;
     created_at: string;
     target_date?: string;
     children?: GoalTreeNode[];
@@ -42,6 +43,7 @@ export const TreeView: React.FC<TreeViewProps> = ({
     const isSelected = node.id === selectedId;
     const hasChildren = node.children && node.children.length > 0;
     const statusInfo = getStatusIndicator(node.status);
+
     
     // Use progressive indentation that doesn't get too wide
     const indentAmount = Math.min(level * 16, 80); // Cap at 80px to prevent excessive nesting
@@ -107,12 +109,14 @@ export const TreeView: React.FC<TreeViewProps> = ({
                             )}
                         </div>
                         
-                        {/* Target date if available */}
-                        {node.target_date && (
-                            <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">
-                                {new Date(node.target_date).toLocaleDateString()}
-                            </span>
-                        )}
+                        <div className="flex items-center space-x-2">
+                            {/* Target date if available */}
+                            {node.target_date && (
+                                <span className="text-xs text-gray-500 whitespace-nowrap">
+                                    {new Date(node.target_date).toLocaleDateString()}
+                                </span>
+                            )}
+                        </div>
                     </div>
                     
                     {/* Description on separate line if present */}
@@ -123,6 +127,7 @@ export const TreeView: React.FC<TreeViewProps> = ({
                     )}
                 </div>
             </div>
+            
             
             {/* Children */}
             {hasChildren && expanded && (

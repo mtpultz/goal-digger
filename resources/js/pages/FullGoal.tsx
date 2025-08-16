@@ -74,6 +74,7 @@ const FullGoal: React.FC = () => {
             title: goal.title,
             status: goal.status,
             description: goal.description,
+            category: goal.category,
             created_at: goal.created_at,
             target_date: goal.target_date,
             children: goal.children
@@ -81,6 +82,7 @@ const FullGoal: React.FC = () => {
                 : undefined,
         };
     };
+
 
     if (loading) {
         return (
@@ -130,7 +132,10 @@ const FullGoal: React.FC = () => {
 
             <Card>
                 <CardContent className="p-6">
-                    <TreeView node={tree} selectedId={selectedId} />
+                    <TreeView 
+                        node={tree} 
+                        selectedId={selectedId} 
+                    />
                 </CardContent>
             </Card>
         </div>
