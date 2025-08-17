@@ -59,6 +59,7 @@ class GoalsController extends Controller
             'description' => $request->description,
             'due_date' => $request->target_date,
             'status' => 'OPEN',
+            'category' => $request->category,
         ]);
 
         $goal->load(['root', 'parent']);
@@ -110,6 +111,7 @@ class GoalsController extends Controller
             'title' => $request->get('title', $goal->title),
             'description' => $request->get('description', $goal->description),
             'due_date' => $request->get('target_date', $goal->due_date),
+            'category' => $request->get('category', $goal->category),
         ]);
 
         $goal->load(['root', 'parent']);

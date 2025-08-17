@@ -18,7 +18,7 @@ export interface EditableGoal {
 
 interface EditGoalFormProps {
     goal: EditableGoal;
-    onSave: (updatedGoal: EditableGoal) => void;
+    onSave: (updatedGoal: any) => void;
     onCancel: () => void;
 }
 
@@ -27,7 +27,7 @@ const EditGoalForm: React.FC<EditGoalFormProps> = ({ goal, onSave, onCancel }) =
         id: goal.id,
         title: goal.title,
         description: goal.description,
-        category: goal.category,
+        category: goal.category || "personal",
         target_date: goal.target_date || "",
     });
     const [loading, setLoading] = useState(false);
@@ -53,7 +53,7 @@ const EditGoalForm: React.FC<EditGoalFormProps> = ({ goal, onSave, onCancel }) =
         setError("");
 
         try {
-            const response = await axios.put(`/api/goals/${goal.id}`, {
+            const response = await axios.patch(`/api/goals/${goal.id}`, {
                 title: formData.title,
                 description: formData.description,
                 category: formData.category,

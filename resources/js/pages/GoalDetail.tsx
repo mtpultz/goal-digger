@@ -63,10 +63,12 @@ const GoalDetail: React.FC = () => {
         title: string;
         description: string;
         target_date: string;
+        category: string;
     }>({
         title: "",
         description: "",
         target_date: "",
+        category: "personal",
     });
     const [submittingSubGoal, setSubmittingSubGoal] = useState<boolean>(false);
     const [updatingStatus, setUpdatingStatus] = useState<boolean>(false);
@@ -160,6 +162,7 @@ const GoalDetail: React.FC = () => {
                 title: "",
                 description: "",
                 target_date: "",
+                category: "personal",
             });
             setShowSubGoalForm(false);
         } catch (error) {
@@ -179,20 +182,10 @@ const GoalDetail: React.FC = () => {
         });
     };
 
-    const handleEditSave = async (updatedGoal: EditableGoal): Promise<void> => {
+    const handleEditSave = (updatedGoal: Goal): void => {
         setIsEditing(false);
-        try {
-            const response = await axios.patch(`/api/goals/${updatedGoal.id}`, {
-                title: updatedGoal.title,
-                description: updatedGoal.description,
-                category: updatedGoal.category,
-                target_date: updatedGoal.target_date,
-            });
-            setGoal(response.data.data);
-        } catch (error) {
-            console.error("Error updating goal:", error);
-            setError("Failed to update goal");
-        }
+        // updatedGoal is the full goal object returned from the API
+        setGoal(updatedGoal);
     };
 
     const handleEditCancel = (): void => {
@@ -490,6 +483,26 @@ const GoalDetail: React.FC = () => {
                                             onChange={handleSubGoalInputChange}
                                         />
                                     </div>
+                                    <div>
+                                        <Label htmlFor="sub-goal-category">
+                                            Category
+                                        </Label>
+                                        <Select
+                                            value={newSubGoal.category}
+                                            onValueChange={(value) => setNewSubGoal({...newSubGoal, category: value})}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="personal">Personal</SelectItem>
+                                                <SelectItem value="professional">Professional</SelectItem>
+                                                <SelectItem value="health">Health</SelectItem>
+                                                <SelectItem value="financial">Financial</SelectItem>
+                                                <SelectItem value="education">Education</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                     <div className="flex space-x-3">
                                         <Button
                                             type="submit"
@@ -586,7 +599,7 @@ const GoalDetail: React.FC = () => {
                             id: goal.id,
                             title: goal.title,
                             description: goal.description,
-                            category: goal.category,
+                            category: goal.category || "personal",
                             target_date: goal.target_date,
                         }}
                         onSave={handleEditSave}
